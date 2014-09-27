@@ -920,6 +920,7 @@ static InputKind ParseFrontendArgs(FrontendOptions &Opts, ArgList &Args,
       .Case("objective-c-header", IK_ObjC)
       .Case("c++-header", IK_CXX)
       .Case("objective-c++-header", IK_ObjCXX)
+      .Case("java", IK_Java)
       .Cases("ast", "pcm", IK_AST)
       .Case("ir", IK_LLVM_IR)
       .Default(IK_None);
@@ -1126,6 +1127,8 @@ void CompilerInvocation::setLangDefaults(LangOptions &Opts, InputKind IK,
     case IK_PreprocessedObjCXX:
       LangStd = LangStandard::lang_gnucxx98;
       break;
+    case IK_Java:
+      LangStd = LangStandard::lang_java;
     }
   }
 

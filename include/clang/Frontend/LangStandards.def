@@ -146,5 +146,9 @@ LANGSTANDARD(opencl12, "CL1.2",
 LANGSTANDARD(cuda, "cuda",
              "NVIDIA CUDA(tm)",
              LineComment | CPlusPlus | Digraphs)
+// Java
+LANGSTANDARD(java, "java",
+             "Java",
+             LineComment)
 
 #undef LANGSTANDARD
