@@ -10,6 +10,7 @@
 #include "clang/Frontend/CompilerInstance.h"
 #include "clang/AST/ASTConsumer.h"
 #include "clang/AST/ASTContext.h"
+#include "clang/AST/CASTContext.h"
 #include "clang/AST/Decl.h"
 #include "clang/Basic/Diagnostic.h"
 #include "clang/Basic/FileManager.h"
@@ -377,9 +378,9 @@ void CompilerInstance::createPreprocessor(TranslationUnitKind TUKind) {
 
 void CompilerInstance::createASTContext() {
   Preprocessor &PP = getPreprocessor();
-  Context = new ASTContext(getLangOpts(), PP.getSourceManager(),
-                           PP.getIdentifierTable(), PP.getSelectorTable(),
-                           PP.getBuiltinInfo());
+      Context = new CASTContext(getLangOpts(), PP.getSourceManager(),
+                             PP.getIdentifierTable(), PP.getSelectorTable(),
+                             PP.getBuiltinInfo());
   Context->InitBuiltinTypes(getTarget());
 }
 
@@ -508,8 +509,8 @@ CompilerInstance::createCodeCompletionConsumer(Preprocessor &PP,
 
 void CompilerInstance::createSema(TranslationUnitKind TUKind,
                                   CodeCompleteConsumer *CompletionConsumer) {
-  TheSema.reset(new Sema(getPreprocessor(), getASTContext(), getASTConsumer(),
-                         TUKind, CompletionConsumer));
+  TheSema.reset(getASTContext().createSema(getPreprocessor(), getASTConsumer(),
+    TUKind, CompletionConsumer));
 }
 
 // Output Files

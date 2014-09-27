@@ -10,6 +10,7 @@
 #include "clang/Lex/Preprocessor.h"
 #include "clang/AST/ASTConsumer.h"
 #include "clang/AST/ASTContext.h"
+#include "clang/AST/CASTContext.h"
 #include "clang/Basic/Diagnostic.h"
 #include "clang/Basic/DiagnosticOptions.h"
 #include "clang/Basic/FileManager.h"
@@ -212,9 +213,9 @@ protected:
     // parser actually sets correct pragma handlers for preprocessor
     // according to LangOptions, so we init Parser to register opencl
     // pragma handlers
-    ASTContext Context(OpenCLLangOpts, SourceMgr,
-                       PP.getIdentifierTable(), PP.getSelectorTable(), 
-                       PP.getBuiltinInfo());
+    CASTContext Context(OpenCLLangOpts, SourceMgr,
+                        PP.getIdentifierTable(), PP.getSelectorTable(), 
+                        PP.getBuiltinInfo());
     Context.InitBuiltinTypes(*Target);
 
     ASTConsumer Consumer;

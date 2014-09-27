@@ -13,6 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "clang/Sema/SemaInternal.h"
+#include "clang/Sema/CSema.h"
 #include "clang/AST/ASTContext.h"
 #include "clang/AST/ASTDiagnostic.h"
 #include "clang/AST/DeclCXX.h"
@@ -273,7 +274,7 @@ ASTMutationListener *Sema::getASTMutationListener() const {
   return getASTConsumer().GetASTMutationListener();
 }
 
-Parser *Sema::createParser(bool SkipFunctionBodies) {
+Parser *CSema::createParser(bool SkipFunctionBodies) {
   return new Parser(getPreprocessor(), *this, SkipFunctionBodies);
 }
 

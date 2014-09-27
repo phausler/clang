@@ -939,7 +939,7 @@ public:
   Sema(Preprocessor &pp, ASTContext &ctxt, ASTConsumer &consumer,
        TranslationUnitKind TUKind = TU_Complete,
        CodeCompleteConsumer *CompletionConsumer = nullptr);
-  ~Sema();
+  virtual ~Sema();
 
   /// \brief Perform initialization that occurs after the parser has been
   /// initialized but before it parses anything.
@@ -957,7 +957,7 @@ public:
   ASTMutationListener *getASTMutationListener() const;
   ExternalSemaSource* getExternalSource() const { return ExternalSource; }
 
-  Parser* createParser(bool SkipFunctionBodies);
+  virtual Parser* createParser(bool SkipFunctionBodies) = 0;
 
   ///\brief Registers an external source. If an external source already exists,
   /// creates a multiplex external source and appends to it.

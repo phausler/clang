@@ -512,9 +512,9 @@ public:
 
   DiagnosticsEngine &getDiagnostics() const;
 
-  Sema* createSema(Preprocessor &pp, ASTConsumer &consumer,
-       TranslationUnitKind TUKind = TU_Complete,
-       CodeCompleteConsumer *CompletionConsumer = nullptr);
+  virtual Sema* createSema(Preprocessor &pp, ASTConsumer &consumer,
+                           TranslationUnitKind TUKind = TU_Complete,
+                           CodeCompleteConsumer *CompletionConsumer = nullptr) = 0;
 
   FullSourceLoc getFullLoc(SourceLocation Loc) const {
     return FullSourceLoc(Loc,SourceMgr);
@@ -810,7 +810,7 @@ public:
   ASTContext(LangOptions &LOpts, SourceManager &SM, IdentifierTable &idents,
              SelectorTable &sels, Builtin::Context &builtins);
 
-  ~ASTContext();
+  virtual ~ASTContext();
 
   /// \brief Attach an external AST source to the AST context.
   ///

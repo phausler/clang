@@ -12,6 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "clang/AST/ASTContext.h"
+#include "clang/AST/CASTContext.h"
 #include "CXXABI.h"
 #include "clang/AST/ASTMutationListener.h"
 #include "clang/AST/Attr.h"
@@ -34,6 +35,7 @@
 #include "clang/Basic/SourceManager.h"
 #include "clang/Basic/TargetInfo.h"
 #include "clang/Sema/Sema.h"
+#include "clang/Sema/CSema.h"
 #include "llvm/ADT/SmallString.h"
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/ADT/Triple.h"
@@ -1062,10 +1064,10 @@ DiagnosticsEngine &ASTContext::getDiagnostics() const {
   return SourceMgr.getDiagnostics();
 }
 
-Sema* ASTContext::createSema(Preprocessor &pp, ASTConsumer &consumer,
+Sema* CASTContext::createSema(Preprocessor &pp, ASTConsumer &consumer,
                              TranslationUnitKind TUKind,
                              CodeCompleteConsumer *CompletionConsumer) {
-  return new Sema(pp, *this, consumer, TUKind, CompletionConsumer);
+  return new CSema(pp, *this, consumer, TUKind, CompletionConsumer);
 }
 
 AttrVec& ASTContext::getDeclAttrs(const Decl *D) {
