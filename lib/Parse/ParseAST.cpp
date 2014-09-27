@@ -89,7 +89,7 @@ void clang::ParseAST(Preprocessor &PP, ASTConsumer *Consumer,
                      bool SkipFunctionBodies) {
 
   std::unique_ptr<Sema> S(
-      new Sema(PP, Ctx, *Consumer, TUKind, CompletionConsumer));
+      Ctx.createSema(PP, *Consumer, TUKind, CompletionConsumer));
 
   // Recover resources if we crash before exiting this method.
   llvm::CrashRecoveryContextCleanupRegistrar<Sema> CleanupSema(S.get());

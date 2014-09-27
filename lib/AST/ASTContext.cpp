@@ -33,6 +33,7 @@
 #include "clang/Basic/Builtins.h"
 #include "clang/Basic/SourceManager.h"
 #include "clang/Basic/TargetInfo.h"
+#include "clang/Sema/Sema.h"
 #include "llvm/ADT/SmallString.h"
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/ADT/Triple.h"
@@ -1059,6 +1060,12 @@ void ASTContext::InitBuiltinTypes(const TargetInfo &Target) {
 
 DiagnosticsEngine &ASTContext::getDiagnostics() const {
   return SourceMgr.getDiagnostics();
+}
+
+Sema* ASTContext::createSema(Preprocessor &pp, ASTConsumer &consumer,
+                             TranslationUnitKind TUKind,
+                             CodeCompleteConsumer *CompletionConsumer) {
+  return new Sema(pp, *this, consumer, TUKind, CompletionConsumer);
 }
 
 AttrVec& ASTContext::getDeclAttrs(const Decl *D) {

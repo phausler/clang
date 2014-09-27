@@ -50,12 +50,14 @@ namespace clang {
   class ASTRecordLayout;
   class BlockExpr;
   class CharUnits;
+  class CodeCompleteConsumer;
   class DiagnosticsEngine;
   class Expr;
   class ASTMutationListener;
   class IdentifierTable;
   class MaterializeTemporaryExpr;
   class SelectorTable;
+  class Sema;
   class TargetInfo;
   class CXXABI;
   class MangleNumberingContext;
@@ -509,6 +511,10 @@ public:
   const LangOptions& getLangOpts() const { return LangOpts; }
 
   DiagnosticsEngine &getDiagnostics() const;
+
+  Sema* createSema(Preprocessor &pp, ASTConsumer &consumer,
+       TranslationUnitKind TUKind = TU_Complete,
+       CodeCompleteConsumer *CompletionConsumer = nullptr);
 
   FullSourceLoc getFullLoc(SourceLocation Loc) const {
     return FullSourceLoc(Loc,SourceMgr);
