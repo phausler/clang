@@ -1803,13 +1803,16 @@ bool CompilerInvocation::CreateFromArgs(CompilerInvocation &Res,
   ParseCommentArgs(Res.getLangOpts()->CommentOpts, *Args);
   ParseFileSystemArgs(Res.getFileSystemOpts(), *Args);
   // FIXME: We shouldn't have to pass the DashX option around here
-  InputKind DashX = ParseFrontendArgs(Res.getFrontendOpts(), *Args, Diags);
+  // Changing to host the input kind in the frontendOpts partially satisfies
+  // the passing DashX, however it should be refactored to access the frontendOpts
+  // instead of relying on the argument.
+  Res.getFrontendOpts().Input = ParseFrontendArgs(Res.getFrontendOpts(), *Args, Diags);
   ParseTargetArgs(Res.getTargetOpts(), *Args);
-  Success = ParseCodeGenArgs(Res.getCodeGenOpts(), *Args, DashX, Diags,
+  Success = ParseCodeGenArgs(Res.getCodeGenOpts(), *Args, Res.getFrontendOpts().Input, Diags,
                              Res.getTargetOpts()) && Success;
   ParseHeaderSearchArgs(Res.getHeaderSearchOpts(), *Args);
-  if (DashX != IK_AST && DashX != IK_LLVM_IR) {
-    ParseLangArgs(*Res.getLangOpts(), *Args, DashX, Diags);
+  if (Res.getFrontendOpts().Input != IK_AST && Res.getFrontendOpts().Input != IK_LLVM_IR) {
+    ParseLangArgs(*Res.getLangOpts(), *Args, Res.getFrontendOpts().Input, Diags);
     if (Res.getFrontendOpts().ProgramAction == frontend::RewriteObjC)
       Res.getLangOpts()->ObjCExceptions = 1;
   }

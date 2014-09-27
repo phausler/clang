@@ -239,6 +239,8 @@ public:
   /// \brief File name of the file that will provide record layouts
   /// (in the format produced by -fdump-record-layouts).
   std::string OverrideRecordLayoutsFile;
+
+  InputKind Input;
   
 public:
   FrontendOptions() :
