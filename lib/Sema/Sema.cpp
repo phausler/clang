@@ -27,6 +27,7 @@
 #include "clang/Basic/TargetInfo.h"
 #include "clang/Lex/HeaderSearch.h"
 #include "clang/Lex/Preprocessor.h"
+#include "clang/Parse/Parser.h"
 #include "clang/Sema/CXXFieldCollector.h"
 #include "clang/Sema/DelayedDiagnostic.h"
 #include "clang/Sema/ExternalSemaSource.h"
@@ -270,6 +271,10 @@ bool Sema::makeUnavailableInSystemHeader(SourceLocation loc,
 
 ASTMutationListener *Sema::getASTMutationListener() const {
   return getASTConsumer().GetASTMutationListener();
+}
+
+Parser *Sema::createParser(bool SkipFunctionBodies) {
+  return new Parser(getPreprocessor(), *this, SkipFunctionBodies);
 }
 
 ///\brief Registers an external source. If an external source already exists,

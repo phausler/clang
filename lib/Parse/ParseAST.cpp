@@ -111,7 +111,8 @@ void clang::ParseAST(Sema &S, bool PrintStats, bool SkipFunctionBodies) {
   ASTConsumer *Consumer = &S.getASTConsumer();
 
   std::unique_ptr<Parser> ParseOP(
-      new Parser(S.getPreprocessor(), S, SkipFunctionBodies));
+      S.createParser(SkipFunctionBodies));
+
   Parser &P = *ParseOP.get();
 
   PrettyStackTraceParserEntry CrashInfo(P);

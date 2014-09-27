@@ -149,6 +149,7 @@ namespace clang {
   class OverloadExpr;
   class ParenListExpr;
   class ParmVarDecl;
+  class Parser;
   class Preprocessor;
   class PseudoDestructorTypeStorage;
   class PseudoObjectExpr;
@@ -955,6 +956,8 @@ public:
   ASTConsumer &getASTConsumer() const { return Consumer; }
   ASTMutationListener *getASTMutationListener() const;
   ExternalSemaSource* getExternalSource() const { return ExternalSource; }
+
+  Parser* createParser(bool SkipFunctionBodies);
 
   ///\brief Registers an external source. If an external source already exists,
   /// creates a multiplex external source and appends to it.
