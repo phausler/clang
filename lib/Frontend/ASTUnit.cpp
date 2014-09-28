@@ -14,6 +14,7 @@
 #include "clang/Frontend/ASTUnit.h"
 #include "clang/AST/ASTConsumer.h"
 #include "clang/AST/ASTContext.h"
+#include "clang/AST/CASTContext.h"
 #include "clang/AST/DeclVisitor.h"
 #include "clang/AST/StmtVisitor.h"
 #include "clang/AST/TypeOrdering.h"
@@ -31,6 +32,7 @@
 #include "clang/Lex/Preprocessor.h"
 #include "clang/Lex/PreprocessorOptions.h"
 #include "clang/Sema/Sema.h"
+#include "clang/Sema/CSema.h"
 #include "clang/Serialization/ASTReader.h"
 #include "clang/Serialization/ASTWriter.h"
 #include "llvm/ADT/ArrayRef.h"
@@ -715,9 +717,9 @@ ASTUnit *ASTUnit::LoadFromASTFile(const std::string &Filename,
                        /*OwnsHeaderSearch=*/false);
   Preprocessor &PP = *AST->PP;
 
-  AST->Ctx = new ASTContext(AST->ASTFileLangOpts, AST->getSourceManager(),
-                            PP.getIdentifierTable(), PP.getSelectorTable(),
-                            PP.getBuiltinInfo());
+  AST->Ctx = new CASTContext(AST->ASTFileLangOpts, AST->getSourceManager(),
+                             PP.getIdentifierTable(), PP.getSelectorTable(),
+                             PP.getBuiltinInfo());
   ASTContext &Context = *AST->Ctx;
 
   bool disableValid = false;
@@ -761,7 +763,7 @@ ASTUnit *ASTUnit::LoadFromASTFile(const std::string &Filename,
   AST->Consumer.reset(new ASTConsumer);
   
   // Create a semantic analysis object and tell the AST reader about it.
-  AST->TheSema.reset(new Sema(PP, Context, *AST->Consumer));
+  AST->TheSema.reset(new CSema(PP, Context, *AST->Consumer));
   AST->TheSema->Initialize();
   AST->Reader->InitializeSema(*AST->TheSema);
 

@@ -29,6 +29,7 @@
 #include "clang/Lex/HeaderSearch.h"
 #include "clang/Lex/Preprocessor.h"
 #include "clang/Parse/Parser.h"
+#include "clang/Parse/CParser.h"
 #include "clang/Sema/CXXFieldCollector.h"
 #include "clang/Sema/DelayedDiagnostic.h"
 #include "clang/Sema/ExternalSemaSource.h"
@@ -275,7 +276,7 @@ ASTMutationListener *Sema::getASTMutationListener() const {
 }
 
 Parser *CSema::createParser(bool SkipFunctionBodies) {
-  return new Parser(getPreprocessor(), *this, SkipFunctionBodies);
+  return new CParser(getPreprocessor(), *this, SkipFunctionBodies);
 }
 
 ///\brief Registers an external source. If an external source already exists,

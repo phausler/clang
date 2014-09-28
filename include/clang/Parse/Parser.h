@@ -58,7 +58,7 @@ class Parser : public CodeCompletionHandler {
   friend class ObjCDeclContextSwitch;
   friend class ParenBraceBracketBalancer;
   friend class BalancedDelimiterTracker;
-
+protected:
   Preprocessor &PP;
 
   /// Tok - The current token we are peeking ahead.  All parsing methods assume
@@ -284,7 +284,7 @@ public:
 
   /// ParseTopLevelDecl - Parse one top-level declaration. Returns true if
   /// the EOF was encountered.
-  bool ParseTopLevelDecl(DeclGroupPtrTy &Result);
+  virtual bool ParseTopLevelDecl(DeclGroupPtrTy &Result) = 0;
   bool ParseTopLevelDecl() {
     DeclGroupPtrTy Result;
     return ParseTopLevelDecl(Result);
@@ -319,7 +319,7 @@ public:
     return true;
   }
 
-private:
+protected:
   //===--------------------------------------------------------------------===//
   // Low-Level token peeking and consumption methods.
   //
@@ -550,7 +550,7 @@ public:
     return ParsedType::getFromOpaquePtr(Tok.getAnnotationValue());
   }
 
-private:
+protected:
   static void setTypeAnnotation(Token &Tok, ParsedType T) {
     Tok.setAnnotationValue(T.getAsOpaquePtr());
   }
@@ -578,7 +578,7 @@ public:
                                                  bool IsNewScope);
   bool TryAnnotateCXXScopeToken(bool EnteringContext = false);
 
-private:
+protected:
   enum AnnotatedNameKind {
     /// Annotation has failed and emitted an error.
     ANK_Error,
@@ -797,7 +797,7 @@ public:
   /// ExitScope - Pop a scope off the scope stack.
   void ExitScope();
 
-private:
+protected:
   /// \brief RAII object used to modify the scope flags for the current scope.
   class ParseScopeFlags {
     Scope *CurScope;
@@ -820,7 +820,7 @@ public:
     return Diag(Tok, DiagID);
   }
 
-private:
+protected:
   void SuggestParentheses(SourceLocation Loc, unsigned DK,
                           SourceRange ParenRange);
   void CheckNestedObjCContexts(SourceLocation AtLoc);
@@ -870,7 +870,7 @@ public:
   /// point for skipping past a simple-declaration.
   void SkipMalformedDecl();
 
-private:
+protected:
   //===--------------------------------------------------------------------===//
   // Lexing and parsing of C++ inline methods.
 
@@ -1333,7 +1333,7 @@ public:
                                   void *Info,
                                   bool IsUnevaluated);
 
-private:
+protected:
   ExprResult ParseExpressionWithLeadingAt(SourceLocation AtLoc);
 
   ExprResult ParseExpressionWithLeadingExtension(SourceLocation ExtLoc);
@@ -1975,7 +1975,7 @@ public:
                            Decl **OwnedType = nullptr,
                            ParsedAttributes *Attrs = nullptr);
 
-private:
+protected:
   void ParseBlockId(SourceLocation CaretLoc);
 
   // Check for the start of a C++11 attribute-specifier-seq in a context where
@@ -2389,7 +2389,7 @@ public:
                           SourceLocation& TemplateKWLoc,
                           UnqualifiedId &Result);
 
-private:
+protected:
   //===--------------------------------------------------------------------===//
   // C++ 14: Templates [temp]
 

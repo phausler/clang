@@ -22,8 +22,8 @@
 #include "clang/Lex/HeaderSearchOptions.h"
 #include "clang/Lex/ModuleLoader.h"
 #include "clang/Lex/PreprocessorOptions.h"
-#include "clang/Parse/Parser.h"
-#include "clang/Sema/Sema.h"
+#include "clang/Parse/CParser.h"
+#include "clang/Sema/CSema.h"
 #include "llvm/ADT/SmallString.h"
 #include "llvm/Support/Path.h"
 #include "gtest/gtest.h"
@@ -219,8 +219,8 @@ protected:
     Context.InitBuiltinTypes(*Target);
 
     ASTConsumer Consumer;
-    Sema S(PP, Context, Consumer);
-    Parser P(PP, S, false);
+    CSema S(PP, Context, Consumer);
+    CParser P(PP, S, false);
     PragmaOpenCLExtensionCallbacks* Callbacks = new PragmaOpenCLExtensionCallbacks;
     PP.addPPCallbacks(Callbacks); // Takes ownership.
 
