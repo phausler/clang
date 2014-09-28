@@ -24,6 +24,7 @@ namespace tok {
 /// \brief Provides a simple uniform namespace for tokens from all C languages.
 enum TokenKind : unsigned short {
 #define TOK(X) X,
+#define JAVA_KEYWORD(X) java_##X,
 #include "clang/Basic/TokenKinds.def"
   NUM_TOKENS
 };

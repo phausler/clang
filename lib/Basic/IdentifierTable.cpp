@@ -108,7 +108,8 @@ namespace {
     KEYNOMS = 0x01000,
     WCHARSUPPORT = 0x02000,
     HALFSUPPORT = 0x04000,
-    KEYALL = (0xffff & ~KEYNOMS) // Because KEYNOMS is used to exclude.
+    KEYJAVA = 0x10000,
+    KEYALL = (0x0ffff & ~KEYNOMS) // Because KEYNOMS is used to exclude.
   };
 }
 
@@ -142,7 +143,7 @@ static void AddKeyword(StringRef Keyword,
   // in non-arc mode.
   else if (LangOpts.ObjC2 && (Flags & KEYARC)) AddResult = 2;
   else if (LangOpts.CPlusPlus && (Flags & KEYCXX11)) AddResult = 3;
-
+  else if (LangOpts.Java && (Flags & KEYJAVA)) AddResult = 2;
   // Don't add this keyword under MSVCCompat.
   if (LangOpts.MSVCCompat && (Flags & KEYNOMS))
      return;
@@ -179,6 +180,9 @@ void IdentifierTable::AddKeywords(const LangOptions &LangOpts) {
 #define KEYWORD(NAME, FLAGS) \
   AddKeyword(StringRef(#NAME), tok::kw_ ## NAME,  \
              FLAGS, LangOpts, *this);
+#define JAVA_KEYWORD(NAME) \
+  AddKeyword(StringRef(#NAME), tok::java_ ## NAME,  \
+             KEYJAVA, LangOpts, *this);
 #define ALIAS(NAME, TOK, FLAGS) \
   AddKeyword(StringRef(NAME), tok::kw_ ## TOK,  \
              FLAGS, LangOpts, *this);

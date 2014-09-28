@@ -53,6 +53,7 @@ LANGOPT(CPlusPlus1y       , 1, 0, "C++1y")
 LANGOPT(CPlusPlus1z       , 1, 0, "C++1z")
 LANGOPT(ObjC1             , 1, 0, "Objective-C 1")
 LANGOPT(ObjC2             , 1, 0, "Objective-C 2")
+LANGOPT(Java              , 1, 0, "Java")
 BENIGN_LANGOPT(ObjCDefaultSynthProperties , 1, 0,
                "Objective-C auto-synthesized properties")
 BENIGN_LANGOPT(EncodeExtendedBlockSig , 1, 0,

@@ -149,6 +149,6 @@ LANGSTANDARD(cuda, "cuda",
 // Java
 LANGSTANDARD(java, "java",
              "Java",
-             LineComment)
+             LineComment | Java)
 
 #undef LANGSTANDARD

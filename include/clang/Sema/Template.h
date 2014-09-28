@@ -410,6 +410,7 @@ namespace clang {
 #define OBJCPROPERTY(DERIVED, BASE)
 #define OBJCPROPERTYIMPL(DERIVED, BASE)
 #define EMPTY(DERIVED, BASE)
+#define JAVAPACKAGE(DERIVED, BASE)
 
 // Decls which use special-case instantiation code.
 #define BLOCK(DERIVED, BASE)

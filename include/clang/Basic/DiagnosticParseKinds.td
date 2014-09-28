@@ -940,4 +940,11 @@ def err_module_expected_semi : Error<
   "expected ';' after module name">;
 }
 
+let CategoryName = "Java Issue" in {
+def err_pacakge_expected_ident : Error<
+  "expected a class path after pacakge declaration">;
+def err_pacakge_expected_semi : Error<
+  "expected ';' after pacakge class path">;
+}
+
 } // end of Parser diagnostics

@@ -50,6 +50,9 @@
 #ifndef OBJC2_AT_KEYWORD
 #define OBJC2_AT_KEYWORD(X)
 #endif
+#ifndef JAVA_KEYWORD
+#define JAVA_KEYWORD(X)
+#endif
 #ifndef TESTING_KEYWORD
 #define TESTING_KEYWORD(X, L) KEYWORD(X, L)
 #endif
@@ -496,6 +499,61 @@ ALIAS("__fp16", half                , KEYALL)
 // OpenCL Extension.
 KEYWORD(half                        , HALFSUPPORT)
 
+// Java Support
+JAVA_KEYWORD(abstract)
+JAVA_KEYWORD(assert)
+JAVA_KEYWORD(boolean)
+JAVA_KEYWORD(break)
+JAVA_KEYWORD(byte)
+JAVA_KEYWORD(case)
+JAVA_KEYWORD(catch)
+JAVA_KEYWORD(char)
+JAVA_KEYWORD(class)
+JAVA_KEYWORD(const)
+JAVA_KEYWORD(continue)
+JAVA_KEYWORD(default)
+JAVA_KEYWORD(do)
+JAVA_KEYWORD(double)
+JAVA_KEYWORD(else)
+JAVA_KEYWORD(enum)
+JAVA_KEYWORD(extends)
+JAVA_KEYWORD(final)
+JAVA_KEYWORD(finally)
+JAVA_KEYWORD(float)
+JAVA_KEYWORD(for)
+JAVA_KEYWORD(goto)
+JAVA_KEYWORD(if)
+JAVA_KEYWORD(implements)
+JAVA_KEYWORD(import)
+JAVA_KEYWORD(instanceof)
+JAVA_KEYWORD(int)
+JAVA_KEYWORD(interface)
+JAVA_KEYWORD(long)
+JAVA_KEYWORD(native)
+JAVA_KEYWORD(new)
+JAVA_KEYWORD(package)
+JAVA_KEYWORD(private)
+JAVA_KEYWORD(protected)
+JAVA_KEYWORD(public)
+JAVA_KEYWORD(return)
+JAVA_KEYWORD(short)
+JAVA_KEYWORD(static)
+JAVA_KEYWORD(strictfp)
+JAVA_KEYWORD(super)
+JAVA_KEYWORD(switch)
+JAVA_KEYWORD(synchronized)
+JAVA_KEYWORD(this)
+JAVA_KEYWORD(throw)
+JAVA_KEYWORD(throws)
+JAVA_KEYWORD(transient)
+JAVA_KEYWORD(try)
+JAVA_KEYWORD(void)
+JAVA_KEYWORD(volatile)
+JAVA_KEYWORD(while)
+JAVA_KEYWORD(false)
+JAVA_KEYWORD(null)
+JAVA_KEYWORD(true)
+
 // Objective-C ARC keywords.
 KEYWORD(__bridge                     , KEYARC)
 KEYWORD(__bridge_transfer            , KEYARC)
@@ -725,3 +783,5 @@ ANNOTATION(module_end)
 #undef KEYWORD
 #undef PUNCTUATOR
 #undef TOK
+#undef JAVA_KEYWORD
+

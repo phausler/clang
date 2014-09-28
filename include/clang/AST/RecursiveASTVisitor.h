@@ -16,6 +16,7 @@
 
 #include "clang/AST/Attr.h"
 #include "clang/AST/Decl.h"
+#include "clang/AST/JavaDecl.h"
 #include "clang/AST/DeclCXX.h"
 #include "clang/AST/DeclFriend.h"
 #include "clang/AST/DeclObjC.h"
@@ -1423,6 +1424,8 @@ DEF_TRAVERSE_DECL(OMPThreadPrivateDecl, {
     TRY_TO(TraverseStmt(I));
   }
 })
+
+DEF_TRAVERSE_DECL(JavaPackageDecl, {})
 
 // A helper method for TemplateDecl's children.
 template <typename Derived>

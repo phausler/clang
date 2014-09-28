@@ -4,6 +4,7 @@ add_clang_library(clangAST
   APValue.cpp
   ASTConsumer.cpp
   ASTContext.cpp
+  JavaASTContext.cpp
   ASTDiagnostic.cpp
   ASTDumper.cpp
   ASTImporter.cpp
@@ -17,6 +18,7 @@ add_clang_library(clangAST
   CommentParser.cpp
   CommentSema.cpp
   Decl.cpp
+  JavaDecl.cpp
   DeclarationName.cpp
   DeclBase.cpp
   DeclCXX.cpp

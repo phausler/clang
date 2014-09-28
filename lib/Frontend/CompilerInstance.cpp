@@ -11,6 +11,7 @@
 #include "clang/AST/ASTConsumer.h"
 #include "clang/AST/ASTContext.h"
 #include "clang/AST/CASTContext.h"
+#include "clang/AST/JavaASTContext.h"
 #include "clang/AST/Decl.h"
 #include "clang/Basic/Diagnostic.h"
 #include "clang/Basic/FileManager.h"
@@ -378,9 +379,19 @@ void CompilerInstance::createPreprocessor(TranslationUnitKind TUKind) {
 
 void CompilerInstance::createASTContext() {
   Preprocessor &PP = getPreprocessor();
+  switch (getFrontendOpts().Input) {
+    case IK_Java:
+      Context = new JavaASTContext(getLangOpts(), PP.getSourceManager(),
+                                   PP.getIdentifierTable(), PP.getSelectorTable(),
+                                   PP.getBuiltinInfo());
+      break;
+    default:
       Context = new CASTContext(getLangOpts(), PP.getSourceManager(),
                              PP.getIdentifierTable(), PP.getSelectorTable(),
                              PP.getBuiltinInfo());
+      break;
+  }
+  
   Context->InitBuiltinTypes(getTarget());
 }
 

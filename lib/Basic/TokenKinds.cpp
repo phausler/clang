@@ -18,6 +18,7 @@ using namespace clang;
 static const char * const TokNames[] = {
 #define TOK(X) #X,
 #define KEYWORD(X,Y) #X,
+#define JAVA_KEYWORD(X) #X,
 #include "clang/Basic/TokenKinds.def"
   nullptr
 };
@@ -41,6 +42,7 @@ const char *tok::getPunctuatorSpelling(TokenKind Kind) {
 const char *tok::getKeywordSpelling(TokenKind Kind) {
   switch (Kind) {
 #define KEYWORD(X,Y) case kw_ ## X: return #X;
+#define JAVA_KEYWORD(X) case java_ ## X: return #X;
 #include "clang/Basic/TokenKinds.def"
     default: break;
   }
