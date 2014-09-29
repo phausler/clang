@@ -245,7 +245,23 @@ void JavaParser::ParseJavaContainer(SourceLocation Loc /*, modifiers*/, Decl *Co
   //Method
   //Constructor
   //Variable
-  //StaticInitializer
+  if (Tok.is(tok::java_static) && NextToken().is(tok::l_brace)) {
+    if (CanContainImplementations) {
+      Decl *SI = ParseJavaStaticInitializer(ContainerType);
+    } else {
+      // TOOD: Emit diag
+    }
+  }
+}
+
+Decl *JavaParser::ParseJavaStaticInitializer(Decl *ContainerType) {
+  assert(Tok.is(tok::java_static));
+  SourceLocation StaticInitializerLoc = Tok.getLocation();
+  ConsumeToken();
+  StmtResult Body(ParseJavaStatement());
+  return JavaActions()->ActOnJavaStaticInitializer(StaticInitializerLoc, Body);
+}
+
 StmtResult JavaParser::ParseJavaStatement(SourceLocation *TrailingElseLoc) {
   StmtResult Res;
 

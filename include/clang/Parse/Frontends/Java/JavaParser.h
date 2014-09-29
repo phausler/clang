@@ -77,6 +77,8 @@ public:
   Decl *ParseJavaClass(SourceLocation Loc /*, modifiers*/);
   Decl *ParseJavaInterface(SourceLocation Loc /*, modifiers*/);
   void ParseJavaContainer(SourceLocation Loc /*, modifiers*/, Decl *ContainerType, bool CanContainImplementations);
+  Decl *ParseJavaStaticInitializer(Decl *ContainerType);
+
   StmtResult ParseJavaStatement(SourceLocation *TrailingElseLoc = nullptr);
   StmtResult
   ParseJavaStatementOrDeclaration(StmtVector &Stmts, bool OnlyStatement,

@@ -46,6 +46,8 @@ public:
   Decl *ActOnJavaInterface(SourceLocation Loc /*, modifiers*/, 
                            JavaClassPath ClassPath, 
                            SourceLocation ExtendsLoc, JavaClassPathList ExtendsList);
+
+  Decl *ActOnJavaStaticInitializer(SourceLocation Loc, StmtResult Body);
 };
 }
 

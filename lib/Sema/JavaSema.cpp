@@ -52,4 +52,8 @@ Decl *JavaSema::ActOnJavaInterface(SourceLocation Loc /*, modifiers*/,
   return nullptr;
 }
 
+Decl *JavaSema::ActOnJavaStaticInitializer(SourceLocation Loc, StmtResult Body) {
+  return nullptr;
+}
+
 }
