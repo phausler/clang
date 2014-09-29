@@ -1,4 +1,4 @@
-#include "clang/Parse/JavaParser.h"
+#include "clang/Parse/Frontends/Java/JavaParser.h"
 #include "RAIIObjectsForParser.h"
 #include "clang/Parse/ParseDiagnostic.h"
 

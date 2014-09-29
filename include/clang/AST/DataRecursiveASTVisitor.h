@@ -16,7 +16,7 @@
 
 #include "clang/AST/Attr.h"
 #include "clang/AST/Decl.h"
-#include "clang/AST/JavaDecl.h"
+#include "clang/AST/Frontends/Decl.h"
 #include "clang/AST/DeclCXX.h"
 #include "clang/AST/DeclFriend.h"
 #include "clang/AST/DeclObjC.h"
@@ -1353,10 +1353,7 @@ DEF_TRAVERSE_DECL(OMPThreadPrivateDecl, {
   }
 })
 
-DEF_TRAVERSE_DECL(JavaPackageDecl, {})
-DEF_TRAVERSE_DECL(JavaImportDecl, {})
-DEF_TRAVERSE_DECL(JavaClassDecl, {})
-DEF_TRAVERSE_DECL(JavaInterfaceDecl, {})
+#include "clang/AST/Frontends/RecursiveASTVisitorTraversals.h"
 
 // A helper method for TemplateDecl's children.
 template <typename Derived>

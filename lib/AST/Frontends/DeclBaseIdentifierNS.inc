@@ -1,0 +1,1 @@
+#include "Java/JavaDeclBaseIdentifierNS.inc"

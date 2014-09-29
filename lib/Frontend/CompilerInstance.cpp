@@ -11,7 +11,7 @@
 #include "clang/AST/ASTConsumer.h"
 #include "clang/AST/ASTContext.h"
 #include "clang/AST/CASTContext.h"
-#include "clang/AST/JavaASTContext.h"
+#include "clang/AST/Frontends/ASTContext.h"
 #include "clang/AST/Decl.h"
 #include "clang/Basic/Diagnostic.h"
 #include "clang/Basic/FileManager.h"

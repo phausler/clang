@@ -1,4 +1,4 @@
-#include "clang/AST/JavaDecl.h"
+#include "clang/AST/Frontends/Java/JavaDecl.h"
 
 namespace clang {
 

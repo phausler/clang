@@ -4783,6 +4783,7 @@ CXCursor clang_getCursorDefinition(CXCursor C) {
   switch (D->getKind()) {
   // Declaration kinds that don't really separate the notions of
   // declaration and definition.
+  // TODO: Add include for Frontend decl traversals
   case Decl::Namespace:
   case Decl::Typedef:
   case Decl::TypeAlias:

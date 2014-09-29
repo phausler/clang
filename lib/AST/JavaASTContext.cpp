@@ -1,5 +1,5 @@
-#include "clang/AST/JavaASTContext.h"
-#include "clang/Sema/JavaSema.h"
+#include "clang/AST/Frontends/Java/JavaASTContext.h"
+#include "clang/Sema/Frontends/Java/JavaSema.h"
 namespace clang {
 
 Sema* JavaASTContext::createSema(Preprocessor &pp, ASTConsumer &consumer,

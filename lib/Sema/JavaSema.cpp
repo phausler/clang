@@ -1,7 +1,7 @@
-#include "clang/Sema/JavaSema.h"
-#include "clang/Parse/JavaParser.h"
-#include "clang/AST/JavaDecl.h"
-#include "clang/AST/JavaASTContext.h"
+#include "clang/Sema/Frontends/Java/JavaSema.h"
+#include "clang/Parse/Frontends/Java/JavaParser.h"
+#include "clang/AST/Frontends/Java/JavaDecl.h"
+#include "clang/AST/Frontends/Java/JavaASTContext.h"
 
 namespace clang {
 

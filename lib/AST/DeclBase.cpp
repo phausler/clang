@@ -16,7 +16,7 @@
 #include "clang/AST/ASTMutationListener.h"
 #include "clang/AST/Attr.h"
 #include "clang/AST/Decl.h"
-#include "clang/AST/JavaDecl.h"
+#include "clang/AST/Frontends/Decl.h"
 #include "clang/AST/DeclCXX.h"
 #include "clang/AST/DeclContextInternals.h"
 #include "clang/AST/DeclFriend.h"
@@ -591,9 +591,10 @@ unsigned Decl::getIdentifierNamespaceForKind(Kind DeclKind) {
     case Import:
     case OMPThreadPrivate:
     case Empty:
-    case JavaPackage:
       // Never looked up by name.
       return 0;
+#define IDENT_NS(X, Y) case X: return Y;
+    #include "Frontends/DeclBaseIdentifierNS.inc"
   }
 
   llvm_unreachable("Invalid DeclKind!");

@@ -15,7 +15,7 @@
 #define LLVM_CLANG_PARSE_JAVAPARSER_H
 
 #include "clang/Parse/Parser.h"
-#include "clang/Sema/JavaSema.h"
+#include "clang/Sema/Frontends/Java/JavaSema.h"
 
 namespace clang {
 class JavaParser : public Parser {
