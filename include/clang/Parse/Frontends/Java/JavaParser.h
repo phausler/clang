@@ -77,6 +77,24 @@ public:
   Decl *ParseJavaClass(SourceLocation Loc /*, modifiers*/);
   Decl *ParseJavaInterface(SourceLocation Loc /*, modifiers*/);
   void ParseJavaContainer(SourceLocation Loc /*, modifiers*/, Decl *ContainerType, bool CanContainImplementations);
+  StmtResult ParseJavaStatement(SourceLocation *TrailingElseLoc = nullptr);
+  StmtResult
+  ParseJavaStatementOrDeclaration(StmtVector &Stmts, bool OnlyStatement,
+                                  SourceLocation *TrailingElseLoc = nullptr);
+
+  StmtResult ParseJavaIfStatement(SourceLocation *TrailingElseLoc);
+  StmtResult ParseJavaSwitchStatement(SourceLocation *TrailingElseLoc);
+  StmtResult ParseJavaWhileStatement(SourceLocation *TrailingElseLoc);
+  StmtResult ParseJavaForStatement(SourceLocation *TrailingElseLoc);
+  StmtResult ParseJavaExprStatement();
+  StmtResult ParseJavaCaseStatement();
+  StmtResult ParseJavaDefaultStatement();
+  StmtResult ParseCompoundStatement();
+  StmtResult ParseJavaDoStatement();
+  StmtResult ParseJavaGotoStatement();
+  StmtResult ParseJavaContinueStatement();
+  StmtResult ParseJavaBreakStatement();
+  StmtResult ParseJavaReturnStatement();
 };
 
 }

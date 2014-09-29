@@ -246,6 +246,147 @@ void JavaParser::ParseJavaContainer(SourceLocation Loc /*, modifiers*/, Decl *Co
   //Constructor
   //Variable
   //StaticInitializer
+StmtResult JavaParser::ParseJavaStatement(SourceLocation *TrailingElseLoc) {
+  StmtResult Res;
+
+  do {
+    StmtVector Stmts;
+    Res = ParseJavaStatementOrDeclaration(Stmts, true, TrailingElseLoc);
+  } while (!Res.isInvalid() && !Res.get());
+
+  return Res;
 }
+
+StmtResult
+JavaParser::ParseJavaStatementOrDeclaration(StmtVector &Stmts, bool OnlyStatement,
+                                            SourceLocation *TrailingElseLoc) {
+  ParenBraceBracketBalancer BalancerRAIIObj(*this);
+  const char *SemiError = nullptr;
+  StmtResult Res;
+  
+  tok::TokenKind Kind  = Tok.getKind();
+  SourceLocation AtLoc;
+  switch (Kind) {
+    case tok::code_completion:
+      Actions.CodeCompleteOrdinaryName(getCurScope(), Sema::PCC_Statement);
+      cutOffParsing();
+      return StmtError();
+    case tok::identifier:
+    default:
+      if (Tok.is(tok::r_brace)) {
+        Diag(Tok, diag::err_expected_statement);
+        Res = StmtError();
+      } else {
+        Res = ParseJavaExprStatement();
+      }
+      break;
+    case tok::java_case:
+      Res = ParseJavaCaseStatement();
+      break;
+    case tok::java_default:
+      Res = ParseJavaDefaultStatement();
+      break;
+    case tok::l_brace:
+      Res = ParseCompoundStatement();
+      break;
+    case tok::semi:
+      Res = Actions.ActOnNullStmt(ConsumeToken(), false);
+      break;
+
+    case tok::java_if:
+      Res = ParseJavaIfStatement(TrailingElseLoc);
+      break;
+    case tok::java_switch:
+      Res = ParseJavaSwitchStatement(TrailingElseLoc);
+      break;
+    case tok::java_while:
+      Res = ParseJavaWhileStatement(TrailingElseLoc);
+      break;
+    case tok::java_do:
+      Res = ParseJavaDoStatement();
+      SemiError = "do/while";
+      break;
+    case tok::java_for:
+      Res = ParseJavaForStatement(TrailingElseLoc);
+      break;
+    case tok::java_goto:
+      Res = ParseJavaGotoStatement();
+      SemiError = "goto";
+      break;
+    case tok::java_continue:
+      Res = ParseJavaContinueStatement();
+      SemiError = "continue";
+      break;
+    case tok::java_break:
+      Res = ParseJavaBreakStatement();
+      SemiError = "break";
+      break;
+    case tok::java_return:
+      Res = ParseJavaReturnStatement();
+      SemiError = "return";
+      break;
+  }
+
+  assert((Res.isInvalid() || Res.isUsable()) &&
+         "attributes on empty statement");
+
+  if (Res.isInvalid())
+    return Res;
+
+  return Actions.ProcessStmtAttributes(Res.get(), nullptr, SourceRange());
+}
+
+StmtResult JavaParser::ParseJavaIfStatement(SourceLocation *TrailingElseLoc) {
+  return StmtError();
+}
+
+StmtResult JavaParser::ParseJavaSwitchStatement(SourceLocation *TrailingElseLoc) {
+  return StmtError();
+}
+
+StmtResult JavaParser::ParseJavaWhileStatement(SourceLocation *TrailingElseLoc) {
+  return StmtError();
+}
+
+StmtResult JavaParser::ParseJavaForStatement(SourceLocation *TrailingElseLoc) {
+  return StmtError();
+}
+
+StmtResult JavaParser::ParseJavaExprStatement() {
+  return StmtError();
+}
+
+StmtResult JavaParser::ParseJavaCaseStatement() {
+  return StmtError();
+}
+
+StmtResult JavaParser::ParseJavaDefaultStatement() {
+  return StmtError();
+}
+
+StmtResult JavaParser::ParseCompoundStatement() {
+  return StmtError();
+}
+
+StmtResult JavaParser::ParseJavaDoStatement() {
+  return StmtError();
+}
+
+StmtResult JavaParser::ParseJavaGotoStatement() {
+  return StmtError();
+}
+
+StmtResult JavaParser::ParseJavaContinueStatement() {
+  return StmtError();
+}
+
+StmtResult JavaParser::ParseJavaBreakStatement() {
+  return StmtError();
+}
+
+StmtResult JavaParser::ParseJavaReturnStatement() {
+  return StmtError();
+}
+
 
 }
