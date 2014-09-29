@@ -20,8 +20,6 @@
 namespace clang {
 class JavaParser : public Parser {
 private:
-  typedef SmallVector<std::pair<IdentifierInfo *, SourceLocation>, 2> JavaPathIdentifier;
-
   JavaSema *JavaActions() {
   	return (JavaSema *)&Actions;
   }
@@ -43,9 +41,27 @@ private:
         return false;
     }
   }
-  bool ParseJavaIdentifier(JavaPathIdentifier &Ident,
+
+  bool isTokenIntrinsicTypeSpecifier() const {
+    switch (Tok.getKind()) {
+      case tok::java_boolean:
+      case tok::java_byte:
+      case tok::java_char:
+      case tok::java_short:
+      case tok::java_int:
+      case tok::java_float:
+      case tok::java_long:
+      case tok::java_double:
+      case tok::java_void:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  bool ParseJavaIdentifier(JavaSema::JavaClassPath &Ident,
                            bool AcceptsWildcard, SourceLocation Loc,
-                           void (*CodeCompletion)(JavaParser *Parser, SourceLocation Loc, JavaPathIdentifier Path));
+                           void (*CodeCompletion)(JavaParser *Parser, SourceLocation Loc, JavaSema::JavaClassPath Path));
 public:
   JavaParser(Preprocessor &PP, Sema &Actions, bool SkipFunctionBodies) :
     Parser(PP, Actions, SkipFunctionBodies) {  	
@@ -58,9 +74,11 @@ public:
   DeclGroupPtrTy ParseJavaPackageDefinition();
   DeclGroupPtrTy ParseJavaImport();
   Decl *ParseJavaTypeDeclaration();
-  Decl *ParseJavaClass(SourceLocation Loc /*,modifiers*/);
-  Decl *ParseJavaInterface(SourceLocation Loc /*,modifiers*/);
+  Decl *ParseJavaClass(SourceLocation Loc /*, modifiers*/);
+  Decl *ParseJavaInterface(SourceLocation Loc /*, modifiers*/);
+  void ParseJavaContainer(SourceLocation Loc /*, modifiers*/, Decl *ContainerType, bool CanContainImplementations);
 };
+
 }
 
 #endif

@@ -21,6 +21,10 @@ void JavaSema::CodeCompleteClass(SourceLocation ClassLoc, JavaClassPath Path) {
 
 }
 
+void JavaSema::CodeCompleteInterface(SourceLocation ImplementsLoc, JavaClassPath Path) {
+
+}
+
 DeclResult JavaSema::ActOnJavaPackage(SourceLocation PacakgeLoc, JavaClassPath Path) {
   JavaPackageDecl *Package = JavaPackageDecl::Create(Context, Context.getTranslationUnitDecl(),
                                                      PacakgeLoc, Path);
@@ -33,6 +37,19 @@ DeclResult JavaSema::ActOnJavaImport(SourceLocation PacakgeLoc, JavaClassPath Pa
                                                    PacakgeLoc, Path);
   Context.getTranslationUnitDecl()->addDecl(Package);
   return Package;
+}
+
+Decl *JavaSema::ActOnJavaClass(SourceLocation Loc /*, modifiers*/, 
+                               JavaClassPath ClassPath, 
+                               SourceLocation ExtendsLoc, JavaClassPath Extends, 
+                               SourceLocation ImplementsLoc, JavaClassPathList ImplementsList) {
+  return nullptr;
+}
+
+Decl *JavaSema::ActOnJavaInterface(SourceLocation Loc /*, modifiers*/, 
+                                   JavaClassPath ClassPath, 
+                                   SourceLocation ExtendsLoc, JavaClassPathList ExtendsList) {
+  return nullptr;
 }
 
 }

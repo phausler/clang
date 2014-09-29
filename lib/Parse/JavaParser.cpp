@@ -45,9 +45,9 @@ JavaParser::DeclGroupPtrTy JavaParser::ParseExternalDeclaration(ParsedAttributes
   return Actions.ConvertDeclToDeclGroup(SingleDecl);
 }
 
-bool JavaParser::ParseJavaIdentifier(JavaPathIdentifier &Ident,
+bool JavaParser::ParseJavaIdentifier(JavaSema::JavaClassPath &Ident,
                                      bool AcceptsWildcard, SourceLocation Loc,
-                                     void (*CodeCompletion)(JavaParser *Parser, SourceLocation Loc, JavaPathIdentifier Path)) {
+                                     void (*CodeCompletion)(JavaParser *Parser, SourceLocation Loc, JavaSema::JavaClassPath Path)) {
   do {
     if (!Tok.is(tok::identifier) && 
         ((AcceptsWildcard && !Tok.is(tok::star)) || !AcceptsWildcard)) {
@@ -79,8 +79,8 @@ JavaParser::DeclGroupPtrTy JavaParser::ParseJavaPackageDefinition() {
   assert(Tok.is(tok::java_package) && "expected package");
 
   SourceLocation PackageLoc = ConsumeToken();
-  JavaPathIdentifier ClassPath;
-  if (!ParseJavaIdentifier(ClassPath, false, PackageLoc, [] (JavaParser *Parser, SourceLocation Loc, JavaPathIdentifier Path) {
+  JavaSema::JavaClassPath ClassPath;
+  if (!ParseJavaIdentifier(ClassPath, false, PackageLoc, [] (JavaParser *Parser, SourceLocation Loc, JavaSema::JavaClassPath Path) {
     Parser->JavaActions()->CodeCompletePacakge(Loc, Path);
   })) {
     return DeclGroupPtrTy();
@@ -98,8 +98,8 @@ JavaParser::DeclGroupPtrTy JavaParser::ParseJavaImport() {
 
   SourceLocation ImportLoc = ConsumeToken();
 
-  JavaPathIdentifier ClassPath;
-  if (!ParseJavaIdentifier(ClassPath, true, ImportLoc, [] (JavaParser *Parser, SourceLocation Loc, JavaPathIdentifier Path) {
+  JavaSema::JavaClassPath ClassPath;
+  if (!ParseJavaIdentifier(ClassPath, true, ImportLoc, [] (JavaParser *Parser, SourceLocation Loc, JavaSema::JavaClassPath Path) {
     Parser->JavaActions()->CodeCompleteImport(Loc, Path);
   })) {
     return DeclGroupPtrTy();
@@ -136,28 +136,59 @@ Decl *JavaParser::ParseJavaClass(SourceLocation Loc /*,modifiers*/) {
     return nullptr;
   }
   
-  JavaPathIdentifier ClassPath;
-  if (!ParseJavaIdentifier(ClassPath, false, Loc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaPathIdentifier Path) {
+  JavaSema::JavaClassPath ClassPath;
+  if (!ParseJavaIdentifier(ClassPath, false, Loc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaSema::JavaClassPath Path) {
     Parser->JavaActions()->CodeCompleteClass(StartLoc, Path);
   })) {
     return nullptr;
   }
   
-  JavaPathIdentifier Extends;
+  JavaSema::JavaClassPath Extends;
   SourceLocation ExtendsLoc;
 
   if (Tok.is(tok::java_extends)) {
     ExtendsLoc = Tok.getLocation();
     ConsumeToken();
     
-    if (!ParseJavaIdentifier(Extends, false, ExtendsLoc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaPathIdentifier Path) {
+    if (!ParseJavaIdentifier(Extends, false, ExtendsLoc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaSema::JavaClassPath Path) {
       Parser->JavaActions()->CodeCompleteClass(StartLoc, Path);
     })) {
       return nullptr;
     }
   }
 
-  return nullptr;
+  JavaSema::JavaClassPathList ImplementsList;
+  SourceLocation ImplementsLoc;
+
+  if (Tok.is(tok::java_implements)) {
+    ImplementsLoc = Tok.getLocation();
+    ConsumeToken();
+
+    do {
+      JavaSema::JavaClassPath Implements;
+      
+      if (!ParseJavaIdentifier(Implements, false, ImplementsLoc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaSema::JavaClassPath Path) {
+        Parser->JavaActions()->CodeCompleteInterface(StartLoc, Path);
+      })) {
+        return nullptr;
+      }
+      
+      ImplementsList.push_back(Implements);
+
+      if (!Tok.is(tok::comma)) {
+        break;
+      }
+
+      ConsumeToken();
+
+    } while (true);
+  }
+
+  Decl *ClsType = JavaActions()->ActOnJavaClass(Loc /*, modifiers*/, ClassPath, ExtendsLoc, Extends, ImplementsLoc, ImplementsList);
+
+  ParseJavaContainer(Loc, ClsType, true);
+
+  return ClsType;
 }
 
 Decl *JavaParser::ParseJavaInterface(SourceLocation Loc /*,modifiers*/) {
@@ -169,28 +200,52 @@ Decl *JavaParser::ParseJavaInterface(SourceLocation Loc /*,modifiers*/) {
     return nullptr;
   }
   
-  JavaPathIdentifier ClassPath;
-  if (!ParseJavaIdentifier(ClassPath, false, Loc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaPathIdentifier Path) {
+  JavaSema::JavaClassPath ClassPath;
+  if (!ParseJavaIdentifier(ClassPath, false, Loc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaSema::JavaClassPath Path) {
     Parser->JavaActions()->CodeCompleteClass(StartLoc, Path);
   })) {
     return nullptr;
   }
   
-  JavaPathIdentifier Extends;
+  JavaSema::JavaClassPathList ExtendsList;
   SourceLocation ExtendsLoc;
 
   if (Tok.is(tok::java_extends)) {
     ExtendsLoc = Tok.getLocation();
     ConsumeToken();
     
-    if (!ParseJavaIdentifier(Extends, false, ExtendsLoc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaPathIdentifier Path) {
-      Parser->JavaActions()->CodeCompleteClass(StartLoc, Path);
-    })) {
-      return nullptr;
-    }
+    do {
+      JavaSema::JavaClassPath Extends;
+      
+      if (!ParseJavaIdentifier(Extends, false, ExtendsLoc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaSema::JavaClassPath Path) {
+        Parser->JavaActions()->CodeCompleteClass(StartLoc, Path);
+      })) {
+        return nullptr;
+      }
+      
+      ExtendsList.push_back(Extends);
+
+      if (!Tok.is(tok::comma)) {
+        break;
+      }
+
+      ConsumeToken();
+
+    } while (true);
   }
 
-  return nullptr;
+  Decl *InterfaceType = JavaActions()->ActOnJavaInterface(Loc /*, modifiers*/, ClassPath, ExtendsLoc, ExtendsList);
+
+  ParseJavaContainer(Loc, InterfaceType, false);
+
+  return InterfaceType;
+}
+
+void JavaParser::ParseJavaContainer(SourceLocation Loc /*, modifiers*/, Decl *ContainerType, bool CanContainImplementations) {
+  //Method
+  //Constructor
+  //Variable
+  //StaticInitializer
 }
 
 }

@@ -19,8 +19,10 @@
 
 namespace clang {
 class JavaSema : public Sema {
-	typedef ArrayRef<std::pair<IdentifierInfo *, SourceLocation>> JavaClassPath;
 public:
+  typedef SmallVector<std::pair<IdentifierInfo *, SourceLocation>, 2> JavaClassPath;
+  typedef SmallVector<JavaClassPath, 2> JavaClassPathList;
+
   JavaSema(Preprocessor &pp, ASTContext &ctxt, ASTConsumer &consumer,
            TranslationUnitKind TUKind = TU_Complete,
            CodeCompleteConsumer *CompletionConsumer = nullptr) :
@@ -33,9 +35,17 @@ public:
   void CodeCompletePacakge(SourceLocation PacakgeLoc, JavaClassPath Path);
   void CodeCompleteImport(SourceLocation ImportLoc, JavaClassPath Path);
   void CodeCompleteClass(SourceLocation ClassLoc, JavaClassPath Path);
+  void CodeCompleteInterface(SourceLocation ImplementsLoc, JavaClassPath Path);
 
   DeclResult ActOnJavaPackage(SourceLocation PacakgeLoc, JavaClassPath Path);
   DeclResult ActOnJavaImport(SourceLocation PacakgeLoc, JavaClassPath Path);
+  Decl *ActOnJavaClass(SourceLocation Loc /*, modifiers*/, 
+                       JavaClassPath ClassPath, 
+                       SourceLocation ExtendsLoc, JavaClassPath Extends, 
+                       SourceLocation ImplementsLoc, JavaClassPathList ImplementsList);
+  Decl *ActOnJavaInterface(SourceLocation Loc /*, modifiers*/, 
+                           JavaClassPath ClassPath, 
+                           SourceLocation ExtendsLoc, JavaClassPathList ExtendsList);
 };
 }
 
