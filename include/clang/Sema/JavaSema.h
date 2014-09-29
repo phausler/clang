@@ -19,7 +19,7 @@
 
 namespace clang {
 class JavaSema : public Sema {
-	typedef ArrayRef<std::pair<IdentifierInfo *, SourceLocation>> PacakgeClassPath;
+	typedef ArrayRef<std::pair<IdentifierInfo *, SourceLocation>> JavaClassPath;
 public:
   JavaSema(Preprocessor &pp, ASTContext &ctxt, ASTConsumer &consumer,
            TranslationUnitKind TUKind = TU_Complete,
@@ -30,9 +30,12 @@ public:
 
   virtual Parser* createParser(bool SkipFunctionBodies);
 
-  void CodeCompletePacakge(SourceLocation PacakgeLoc, PacakgeClassPath Path);
-  
-  DeclResult ActOnJavaPackage(SourceLocation PacakgeLoc, PacakgeClassPath Path);
+  void CodeCompletePacakge(SourceLocation PacakgeLoc, JavaClassPath Path);
+  void CodeCompleteImport(SourceLocation ImportLoc, JavaClassPath Path);
+  void CodeCompleteClass(SourceLocation ClassLoc, JavaClassPath Path);
+
+  DeclResult ActOnJavaPackage(SourceLocation PacakgeLoc, JavaClassPath Path);
+  DeclResult ActOnJavaImport(SourceLocation PacakgeLoc, JavaClassPath Path);
 };
 }
 

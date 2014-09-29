@@ -1354,6 +1354,9 @@ DEF_TRAVERSE_DECL(OMPThreadPrivateDecl, {
 })
 
 DEF_TRAVERSE_DECL(JavaPackageDecl, {})
+DEF_TRAVERSE_DECL(JavaImportDecl, {})
+DEF_TRAVERSE_DECL(JavaClassDecl, {})
+DEF_TRAVERSE_DECL(JavaInterfaceDecl, {})
 
 // A helper method for TemplateDecl's children.
 template <typename Derived>

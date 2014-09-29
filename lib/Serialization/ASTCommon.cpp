@@ -174,6 +174,7 @@ bool serialization::isRedeclarableDeclKind(unsigned Kind) {
   case Decl::ObjCProtocol:
   case Decl::ObjCInterface:
   case Decl::Empty:
+  case Decl::JavaImport:
     return true;
 
   // Never redeclarable.
@@ -211,6 +212,9 @@ bool serialization::isRedeclarableDeclKind(unsigned Kind) {
   case Decl::ClassScopeFunctionSpecialization:
   case Decl::Import:
   case Decl::OMPThreadPrivate:
+  case Decl::JavaPackage:
+  case Decl::JavaClass:
+  case Decl::JavaInterface:
     return false;
   }
 

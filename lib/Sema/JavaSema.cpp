@@ -9,15 +9,30 @@ Parser *JavaSema::createParser(bool SkipFunctionBodies) {
   return new JavaParser(getPreprocessor(), *this, SkipFunctionBodies);
 }
 
-void JavaSema::CodeCompletePacakge(SourceLocation PacakgeLoc, PacakgeClassPath Path) {
+void JavaSema::CodeCompletePacakge(SourceLocation PacakgeLoc, JavaClassPath Path) {
 
 }
 
-DeclResult JavaSema::ActOnJavaPackage(SourceLocation PacakgeLoc, PacakgeClassPath Path) {
-	JavaPackageDecl *Package = JavaPackageDecl::Create(Context, Context.getTranslationUnitDecl(),
-							 							PacakgeLoc, Path);
-	Context.getTranslationUnitDecl()->addDecl(Package);
-	return Package;
+void JavaSema::CodeCompleteImport(SourceLocation ImportLoc, JavaClassPath Path) {
+
+}
+
+void JavaSema::CodeCompleteClass(SourceLocation ClassLoc, JavaClassPath Path) {
+
+}
+
+DeclResult JavaSema::ActOnJavaPackage(SourceLocation PacakgeLoc, JavaClassPath Path) {
+  JavaPackageDecl *Package = JavaPackageDecl::Create(Context, Context.getTranslationUnitDecl(),
+                                                     PacakgeLoc, Path);
+  Context.getTranslationUnitDecl()->addDecl(Package);
+  return Package;
+}
+
+DeclResult JavaSema::ActOnJavaImport(SourceLocation PacakgeLoc, JavaClassPath Path) {
+  JavaImportDecl *Package = JavaImportDecl::Create(Context, Context.getTranslationUnitDecl(),
+                                                   PacakgeLoc, Path);
+  Context.getTranslationUnitDecl()->addDecl(Package);
+  return Package;
 }
 
 }

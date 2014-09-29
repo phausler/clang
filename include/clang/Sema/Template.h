@@ -411,6 +411,9 @@ namespace clang {
 #define OBJCPROPERTYIMPL(DERIVED, BASE)
 #define EMPTY(DERIVED, BASE)
 #define JAVAPACKAGE(DERIVED, BASE)
+#define JAVAIMPORT(DERIVED, BASE)
+#define JAVACLASS(DERIVED, BASE)
+#define JAVAINTERFACE(DERIVED, BASE)
 
 // Decls which use special-case instantiation code.
 #define BLOCK(DERIVED, BASE)

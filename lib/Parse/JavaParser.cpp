@@ -36,33 +36,32 @@ JavaParser::DeclGroupPtrTy JavaParser::ParseExternalDeclaration(ParsedAttributes
       return ParseJavaPackageDefinition();
       break;
     case tok::java_import:
-      SingleDecl = ParseJavaImport();
+      return ParseJavaImport();
     default:
+      SingleDecl = ParseJavaTypeDeclaration();
       break;
   }
 
   return Actions.ConvertDeclToDeclGroup(SingleDecl);
 }
 
-JavaParser::DeclGroupPtrTy JavaParser::ParseJavaPackageDefinition() {
-   assert(Tok.is(tok::java_package) && "expected package");
-
-   SourceLocation PackageLoc = ConsumeToken();
-   SmallVector<std::pair<IdentifierInfo *, SourceLocation>, 2> ClassPath;
-   do {
-    if (!Tok.is(tok::identifier)) {
+bool JavaParser::ParseJavaIdentifier(JavaPathIdentifier &Ident,
+                                     bool AcceptsWildcard, SourceLocation Loc,
+                                     void (*CodeCompletion)(JavaParser *Parser, SourceLocation Loc, JavaPathIdentifier Path)) {
+  do {
+    if (!Tok.is(tok::identifier) && 
+        ((AcceptsWildcard && !Tok.is(tok::star)) || !AcceptsWildcard)) {
       if (Tok.is(tok::code_completion)) {
-        JavaActions()->CodeCompletePacakge(PackageLoc, ClassPath);
+        CodeCompletion(this, Loc, Ident);
         cutOffParsing();
-        return DeclGroupPtrTy();
+        return false;
       }
       
-      // Diag(Tok, diag::err_package_expected_ident);
       SkipUntil(tok::semi);
-      return DeclGroupPtrTy();
+      return false;
     }
 
-    ClassPath.push_back(std::make_pair(Tok.getIdentifierInfo(), Tok.getLocation()));
+    Ident.push_back(std::make_pair(Tok.getIdentifierInfo(), Tok.getLocation()));
     ConsumeToken();
     
     if (Tok.is(tok::period)) {
@@ -73,6 +72,20 @@ JavaParser::DeclGroupPtrTy JavaParser::ParseJavaPackageDefinition() {
     break;
   } while (true);
 
+  return true;
+}
+
+JavaParser::DeclGroupPtrTy JavaParser::ParseJavaPackageDefinition() {
+  assert(Tok.is(tok::java_package) && "expected package");
+
+  SourceLocation PackageLoc = ConsumeToken();
+  JavaPathIdentifier ClassPath;
+  if (!ParseJavaIdentifier(ClassPath, false, PackageLoc, [] (JavaParser *Parser, SourceLocation Loc, JavaPathIdentifier Path) {
+    Parser->JavaActions()->CodeCompletePacakge(Loc, Path);
+  })) {
+    return DeclGroupPtrTy();
+  }
+
   DeclResult Package = JavaActions()->ActOnJavaPackage(PackageLoc, ClassPath);
   ExpectAndConsumeSemi(diag::err_pacakge_expected_semi);
   // ExpectAndConsumeSemi(diag::err_expected_semi_declaration);
@@ -80,10 +93,103 @@ JavaParser::DeclGroupPtrTy JavaParser::ParseJavaPackageDefinition() {
   return Actions.ConvertDeclToDeclGroup(Package.get());
 }
 
-Decl *JavaParser::ParseJavaImport() {
+JavaParser::DeclGroupPtrTy JavaParser::ParseJavaImport() {
   assert(Tok.is(tok::java_import) && "expected import");
 
-  SourceLocation importLoc = ConsumeToken();
+  SourceLocation ImportLoc = ConsumeToken();
+
+  JavaPathIdentifier ClassPath;
+  if (!ParseJavaIdentifier(ClassPath, true, ImportLoc, [] (JavaParser *Parser, SourceLocation Loc, JavaPathIdentifier Path) {
+    Parser->JavaActions()->CodeCompleteImport(Loc, Path);
+  })) {
+    return DeclGroupPtrTy();
+  }
+
+  DeclResult Import = JavaActions()->ActOnJavaImport(ImportLoc, ClassPath);
+  ExpectAndConsumeSemi(diag::err_expected_semi_declaration);
+
+  return Actions.ConvertDeclToDeclGroup(Import.get());;
+}
+
+Decl *JavaParser::ParseJavaTypeDeclaration() {
+  SourceLocation Loc;
+  while (isTokenModifier()) {
+    ConsumeToken();
+  }
+
+  if (Tok.is(tok::java_class)) {
+    return ParseJavaClass(Loc /*,modifiers*/);
+  } else if (Tok.is(tok::java_interface)) {
+    return ParseJavaInterface(Loc /*,modifiers*/);
+  } else {
+    // TODO: Emit diag here
+    return nullptr;
+  }
+}
+
+Decl *JavaParser::ParseJavaClass(SourceLocation Loc /*,modifiers*/) {
+  assert(Tok.is(tok::java_class) && "expected class");
+
+  ConsumeToken();
+  if (!Tok.is(tok::identifier)) {
+    // TODO: Emit diag here
+    return nullptr;
+  }
+  
+  JavaPathIdentifier ClassPath;
+  if (!ParseJavaIdentifier(ClassPath, false, Loc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaPathIdentifier Path) {
+    Parser->JavaActions()->CodeCompleteClass(StartLoc, Path);
+  })) {
+    return nullptr;
+  }
+  
+  JavaPathIdentifier Extends;
+  SourceLocation ExtendsLoc;
+
+  if (Tok.is(tok::java_extends)) {
+    ExtendsLoc = Tok.getLocation();
+    ConsumeToken();
+    
+    if (!ParseJavaIdentifier(Extends, false, ExtendsLoc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaPathIdentifier Path) {
+      Parser->JavaActions()->CodeCompleteClass(StartLoc, Path);
+    })) {
+      return nullptr;
+    }
+  }
+
+  return nullptr;
+}
+
+Decl *JavaParser::ParseJavaInterface(SourceLocation Loc /*,modifiers*/) {
+  assert(Tok.is(tok::java_interface) && "expected interface");
+
+  ConsumeToken();
+  if (!Tok.is(tok::identifier)) {
+    // TODO: Emit diag here
+    return nullptr;
+  }
+  
+  JavaPathIdentifier ClassPath;
+  if (!ParseJavaIdentifier(ClassPath, false, Loc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaPathIdentifier Path) {
+    Parser->JavaActions()->CodeCompleteClass(StartLoc, Path);
+  })) {
+    return nullptr;
+  }
+  
+  JavaPathIdentifier Extends;
+  SourceLocation ExtendsLoc;
+
+  if (Tok.is(tok::java_extends)) {
+    ExtendsLoc = Tok.getLocation();
+    ConsumeToken();
+    
+    if (!ParseJavaIdentifier(Extends, false, ExtendsLoc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaPathIdentifier Path) {
+      Parser->JavaActions()->CodeCompleteClass(StartLoc, Path);
+    })) {
+      return nullptr;
+    }
+  }
+
   return nullptr;
 }
 
