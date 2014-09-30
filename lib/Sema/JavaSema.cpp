@@ -39,20 +39,40 @@ DeclResult JavaSema::ActOnJavaImport(SourceLocation PacakgeLoc, JavaClassPath Pa
   return Package;
 }
 
-Decl *JavaSema::ActOnJavaClass(SourceLocation Loc /*, modifiers*/, 
+Decl *JavaSema::ActOnJavaClass(SourceLocation Loc, JavaQualifiers modifiers, 
                                JavaClassPath ClassPath, 
                                SourceLocation ExtendsLoc, JavaClassPath Extends, 
                                SourceLocation ImplementsLoc, JavaClassPathList ImplementsList) {
   return nullptr;
 }
 
-Decl *JavaSema::ActOnJavaInterface(SourceLocation Loc /*, modifiers*/, 
+Decl *JavaSema::ActOnJavaInterface(SourceLocation Loc, JavaQualifiers modifiers, 
                                    JavaClassPath ClassPath, 
                                    SourceLocation ExtendsLoc, JavaClassPathList ExtendsList) {
   return nullptr;
 }
 
 Decl *JavaSema::ActOnJavaStaticInitializer(SourceLocation Loc, StmtResult Body) {
+  return nullptr;
+}
+
+Decl *JavaSema::ActOnJavaParameter(SourceLocation Loc, ParsedType Ty, IdentifierInfo *II) {
+  return nullptr;
+}
+
+Decl *JavaSema::ActOnJavaConstructor(SourceLocation Loc, JavaQualifiers modifiers, SmallVector<Decl *, 8>Args, StmtResult Body) {
+  return nullptr;
+}
+
+Decl *JavaSema::ActOnJavaAbstractMethod(SourceLocation Loc, JavaQualifiers modifiers, ParsedType ReturnTy, IdentifierInfo *II, SmallVector<Decl *, 8>Args) {
+  return nullptr;
+}
+
+Decl *JavaSema::ActOnJavaMethod(SourceLocation Loc, JavaQualifiers modifiers, ParsedType ReturnTy, IdentifierInfo *II, SmallVector<Decl *, 8>Args, StmtResult Body) {
+  return nullptr;
+}
+
+Decl *JavaSema::ActOnJavaVariable(SourceLocation Loc, JavaQualifiers modifiers, ParsedType Ty, IdentifierInfo *II, SourceLocation InitializerLoc, Expr *Initializer) {
   return nullptr;
 }
 

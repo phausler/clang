@@ -111,23 +111,61 @@ JavaParser::DeclGroupPtrTy JavaParser::ParseJavaImport() {
   return Actions.ConvertDeclToDeclGroup(Import.get());;
 }
 
-Decl *JavaParser::ParseJavaTypeDeclaration() {
-  SourceLocation Loc;
+JavaQualifiers JavaParser::ParseModifiers() {
+  JavaQualifiers Quals;
   while (isTokenModifier()) {
+    switch (Tok.getKind()) {
+      case tok::java_public:
+        Quals.addPublic();
+        break;
+      case tok::java_private:
+        Quals.addPrivate();
+        break;
+      case tok::java_protected:
+        Quals.addProtected();
+        break;
+      case tok::java_static:
+        Quals.addStatic();
+        break;
+      case tok::java_final:
+        Quals.addFinal();
+        break;
+      case tok::java_native:
+        Quals.addNative();
+        break;
+      case tok::java_synchronized:
+        Quals.addSynchronized();
+        break;
+      case tok::java_abstract:
+        Quals.addAbstract();
+        break;
+      case tok::java_threadsafe:
+        Quals.addThreadsafe();
+        break;
+      case tok::java_transient:
+        Quals.addTransient();
+        break;
+    }
     ConsumeToken();
   }
+  return Quals;
+}
 
+Decl *JavaParser::ParseJavaTypeDeclaration() {
+  SourceLocation Loc;
+  JavaQualifiers modifiers = ParseModifiers();
+  
   if (Tok.is(tok::java_class)) {
-    return ParseJavaClass(Loc /*,modifiers*/);
+    return ParseJavaClass(Loc, modifiers);
   } else if (Tok.is(tok::java_interface)) {
-    return ParseJavaInterface(Loc /*,modifiers*/);
+    return ParseJavaInterface(Loc, modifiers);
   } else {
     // TODO: Emit diag here
     return nullptr;
   }
 }
 
-Decl *JavaParser::ParseJavaClass(SourceLocation Loc /*,modifiers*/) {
+Decl *JavaParser::ParseJavaClass(SourceLocation Loc ,JavaQualifiers modifiers) {
   assert(Tok.is(tok::java_class) && "expected class");
 
   ConsumeToken();
@@ -184,14 +222,14 @@ Decl *JavaParser::ParseJavaClass(SourceLocation Loc /*,modifiers*/) {
     } while (true);
   }
 
-  Decl *ClsType = JavaActions()->ActOnJavaClass(Loc /*, modifiers*/, ClassPath, ExtendsLoc, Extends, ImplementsLoc, ImplementsList);
+  Decl *ClsType = JavaActions()->ActOnJavaClass(Loc, modifiers, ClassPath, ExtendsLoc, Extends, ImplementsLoc, ImplementsList);
 
-  ParseJavaContainer(Loc, ClsType, true);
+  ParseJavaContainer(Loc, modifiers, ClsType, true);
 
   return ClsType;
 }
 
-Decl *JavaParser::ParseJavaInterface(SourceLocation Loc /*,modifiers*/) {
+Decl *JavaParser::ParseJavaInterface(SourceLocation Loc, JavaQualifiers modifiers) {
   assert(Tok.is(tok::java_interface) && "expected interface");
 
   ConsumeToken();
@@ -234,24 +272,52 @@ Decl *JavaParser::ParseJavaInterface(SourceLocation Loc /*,modifiers*/) {
     } while (true);
   }
 
-  Decl *InterfaceType = JavaActions()->ActOnJavaInterface(Loc /*, modifiers*/, ClassPath, ExtendsLoc, ExtendsList);
+  Decl *InterfaceType = JavaActions()->ActOnJavaInterface(Loc, modifiers, ClassPath, ExtendsLoc, ExtendsList);
 
-  ParseJavaContainer(Loc, InterfaceType, false);
+  ParseJavaContainer(Loc, modifiers, InterfaceType, false);
 
   return InterfaceType;
 }
 
-void JavaParser::ParseJavaContainer(SourceLocation Loc /*, modifiers*/, Decl *ContainerType, bool CanContainImplementations) {
-  //Method
-  //Constructor
-  //Variable
-  if (Tok.is(tok::java_static) && NextToken().is(tok::l_brace)) {
-    if (CanContainImplementations) {
-      Decl *SI = ParseJavaStaticInitializer(ContainerType);
-    } else {
-      // TOOD: Emit diag
+void JavaParser::ParseJavaContainer(SourceLocation Loc, JavaQualifiers modifiers, Decl *ContainerType, bool CanContainImplementations) {
+  do {
+    if (Tok.is(tok::java_static) && NextToken().is(tok::l_brace)) {
+      if (CanContainImplementations) {
+        Decl *SI = ParseJavaStaticInitializer(ContainerType);
+        // TODO: Add SI to container
+      } else {
+        // TOOD: Emit diag
+        SkipUntil(tok::r_brace);
+        return;
+      }
     }
-  }
+
+    SourceLocation ElementLoc = Tok.getLocation();
+    JavaQualifiers modifiers = ParseModifiers();
+
+    if (Tok.is(tok::java_class)) {
+      Decl *Inner = ParseJavaClass(ElementLoc, modifiers);
+      // TODO: Add Inner to container
+    } else if (Tok.is(tok::java_interface)) {
+      Decl *Inner = ParseJavaInterface(ElementLoc, modifiers);
+      // TODO: Add Inner to container
+    } else if (Tok.is(tok::identifier) && NextToken().is(tok::l_paren)) {
+      Decl *Constructor = ParseJavaConstructor(ElementLoc, modifiers);
+      // TODO: Add Constructor to container
+    } else {
+      if (GetLookAheadToken(2).is(tok::l_paren)) {
+        Decl *Method = ParseJavaMethod(ElementLoc, modifiers);
+        // TODO: Add Constructor to container
+      } else {
+        SmallVector<Decl *, 2> Variables = ParseJavaVariable(ElementLoc, modifiers);
+        // TODO: Add Variable to container
+      }
+    }
+
+    if (Tok.is(tok::r_brace)) {
+      break;
+    }
+  } while (true);
 }
 
 Decl *JavaParser::ParseJavaStaticInitializer(Decl *ContainerType) {
@@ -404,5 +470,163 @@ StmtResult JavaParser::ParseJavaReturnStatement() {
   return StmtError();
 }
 
+ParsedType JavaParser::ParseJavaType(bool isReturnType) {
+  ParsedType Ty;
+  
+  if (isTokenIntrinsicTypeSpecifier()) {
+    switch (Tok.getKind()) {
+      case tok::java_boolean:
+      case tok::java_byte:
+      case tok::java_char:
+      case tok::java_short:
+      case tok::java_int:
+      case tok::java_float:
+      case tok::java_long:
+      case tok::java_double:
+      case tok::java_void:
+        if (isReturnType) {
+
+        } else {
+          // TODO: Emit diag?
+        }
+
+        break;
+      default:
+        break;
+    }
+    ConsumeToken();
+  } else {
+
+  }
+
+  return Ty;
+}
+
+Decl *JavaParser::ParseJavaParameter() {
+  SourceLocation Loc = Tok.getLocation();
+  ParsedType Ty = ParseJavaType(false);
+  
+  if (!Tok.is(tok::identifier)) {
+    // TODO: emit diag
+    return nullptr;
+  }
+
+  IdentifierInfo *II = Tok.getIdentifierInfo();
+  ConsumeToken();
+  return JavaActions()->ActOnJavaParameter(Loc, Ty, II);
+}
+
+void JavaParser::ParseJavaParameterList(SmallVector<Decl *, 8> Params) {
+  while (Tok.isNot(tok::r_paren)) {
+    Decl *param = ParseJavaParameter();
+    
+    if (param == nullptr) {
+      // TODO: emit diag
+      SkipUntil(tok::r_paren);
+      break;
+    } else {
+      Params.push_back(param);
+    }
+
+    if (!Tok.is(tok::comma)) {
+      break;
+    }
+  }
+
+  ExpectAndConsume(tok::r_paren);
+}
+
+Decl *JavaParser::ParseJavaConstructor(SourceLocation Loc , JavaQualifiers modifiers) {
+  assert(Tok.is(tok::identifier) && "expected identifier");
+  IdentifierInfo *II = Tok.getIdentifierInfo();
+  ConsumeToken();
+  ExpectAndConsume(tok::l_paren);
+  SmallVector<Decl *, 8> Args;
+  ParseJavaParameterList(Args);
+  ExpectAndConsume(tok::l_brace);
+  StmtResult Body(ParseJavaStatement());
+  return JavaActions()->ActOnJavaConstructor(Loc, modifiers, Args, Body);
+}
+
+Decl *JavaParser::ParseJavaMethod(SourceLocation Loc, JavaQualifiers modifiers) {
+  ParsedType ReturnTy = ParseJavaType(true);
+
+  if (!Tok.is(tok::identifier)) {
+    // TODO: emit diag and skip to ; or }
+    return nullptr;
+  }
+
+  IdentifierInfo *II = Tok.getIdentifierInfo();
+  ConsumeToken();
+
+  ExpectAndConsume(tok::l_paren);
+  SmallVector<Decl *, 8> Args;
+  ParseJavaParameterList(Args);
+
+  Decl *Method = nullptr;
+
+  if (Tok.is(tok::semi)) {
+    Method = JavaActions()->ActOnJavaAbstractMethod(Loc, modifiers, ReturnTy, II, Args);
+  } else {
+    ExpectAndConsume(tok::l_brace);
+    StmtResult Body(ParseJavaStatement());
+    Method = JavaActions()->ActOnJavaMethod(Loc, modifiers, ReturnTy, II, Args, Body);
+  }
+
+  return Method;
+}
+
+Expr *JavaParser::ParseJavaExpression(SourceLocation Loc) {
+  return nullptr;
+}
+
+Decl *JavaParser::ParseJavaVariable(SourceLocation Loc, JavaQualifiers modifiers, ParsedType Ty) {
+  if (!Tok.is(tok::identifier)) {
+    // TODO: Emit diag
+    return nullptr;
+  }
+
+  IdentifierInfo *II = Tok.getIdentifierInfo();
+  ConsumeToken();
+
+  if (Tok.is(tok::l_square)) {
+    ConsumeToken();
+    // TODO: transform Ty into an array type
+    ExpectAndConsume(tok::r_square);
+  }
+
+  SourceLocation InitializerLoc;
+  Expr *Initializer = nullptr;
+  
+  if (Tok.is(tok::equal)) {
+    InitializerLoc = Tok.getLocation();
+    Initializer = ParseJavaExpression(InitializerLoc);
+  }
+
+  return JavaActions()->ActOnJavaVariable(Loc, modifiers, Ty, II, InitializerLoc, Initializer);
+}
+
+SmallVector<Decl *, 2> JavaParser::ParseJavaVariable(SourceLocation Loc, JavaQualifiers modifiers) {
+  SmallVector<Decl *, 2> Variables;
+  ParsedType Ty = ParseJavaType(true);
+  do {
+    Decl *Var = ParseJavaVariable(Loc, modifiers, Ty);
+    
+    if (Var) {
+      Variables.push_back(Var);
+    } else {
+      SkipUntil(tok::semi);
+      break;
+    }
+    
+    if (Tok.is(tok::comma)) {
+      continue;
+    }
+
+    break;
+  } while (true);
+  ExpectAndConsume(tok::semi);
+  return Variables;
+}
 
 }

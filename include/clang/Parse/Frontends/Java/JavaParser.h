@@ -15,6 +15,7 @@
 #define LLVM_CLANG_PARSE_JAVAPARSER_H
 
 #include "clang/Parse/Parser.h"
+#include "clang/AST/Frontends/Java/JavaType.h"
 #include "clang/Sema/Frontends/Java/JavaSema.h"
 
 namespace clang {
@@ -73,10 +74,12 @@ public:
 
   DeclGroupPtrTy ParseJavaPackageDefinition();
   DeclGroupPtrTy ParseJavaImport();
+  JavaQualifiers ParseModifiers();
+  ParsedType ParseJavaType(bool isReturnType);
   Decl *ParseJavaTypeDeclaration();
-  Decl *ParseJavaClass(SourceLocation Loc /*, modifiers*/);
-  Decl *ParseJavaInterface(SourceLocation Loc /*, modifiers*/);
-  void ParseJavaContainer(SourceLocation Loc /*, modifiers*/, Decl *ContainerType, bool CanContainImplementations);
+  Decl *ParseJavaClass(SourceLocation Loc, JavaQualifiers modifiers);
+  Decl *ParseJavaInterface(SourceLocation Loc, JavaQualifiers modifiers);
+  void ParseJavaContainer(SourceLocation Loc, JavaQualifiers modifiers, Decl *ContainerType, bool CanContainImplementations);
   Decl *ParseJavaStaticInitializer(Decl *ContainerType);
 
   StmtResult ParseJavaStatement(SourceLocation *TrailingElseLoc = nullptr);
@@ -97,6 +100,14 @@ public:
   StmtResult ParseJavaContinueStatement();
   StmtResult ParseJavaBreakStatement();
   StmtResult ParseJavaReturnStatement();
+
+  Decl *ParseJavaParameter();
+  void ParseJavaParameterList(SmallVector<Decl *, 8> Params);
+  Decl *ParseJavaConstructor(SourceLocation Loc, JavaQualifiers modifiers);
+  Decl *ParseJavaMethod(SourceLocation Loc, JavaQualifiers modifiers);
+  Expr *ParseJavaExpression(SourceLocation Loc);
+  Decl *ParseJavaVariable(SourceLocation Loc, JavaQualifiers modifiers, ParsedType Ty);
+  SmallVector<Decl *, 2> ParseJavaVariable(SourceLocation Loc, JavaQualifiers modifiers);
 };
 
 }

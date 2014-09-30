@@ -16,6 +16,7 @@
 #define LLVM_CLANG_SEMA_JAVASEMA_H
 
 #include "clang/Sema/Sema.h"
+#include "clang/AST/Frontends/Java/JavaType.h"
 
 namespace clang {
 class JavaSema : public Sema {
@@ -39,15 +40,21 @@ public:
 
   DeclResult ActOnJavaPackage(SourceLocation PacakgeLoc, JavaClassPath Path);
   DeclResult ActOnJavaImport(SourceLocation PacakgeLoc, JavaClassPath Path);
-  Decl *ActOnJavaClass(SourceLocation Loc /*, modifiers*/, 
+  Decl *ActOnJavaClass(SourceLocation Loc, JavaQualifiers modifiers, 
                        JavaClassPath ClassPath, 
                        SourceLocation ExtendsLoc, JavaClassPath Extends, 
                        SourceLocation ImplementsLoc, JavaClassPathList ImplementsList);
-  Decl *ActOnJavaInterface(SourceLocation Loc /*, modifiers*/, 
+  Decl *ActOnJavaInterface(SourceLocation Loc, JavaQualifiers modifiers, 
                            JavaClassPath ClassPath, 
                            SourceLocation ExtendsLoc, JavaClassPathList ExtendsList);
 
   Decl *ActOnJavaStaticInitializer(SourceLocation Loc, StmtResult Body);
+  Decl *ActOnJavaParameter(SourceLocation Loc, ParsedType Ty, IdentifierInfo *II);
+  Decl *ActOnJavaConstructor(SourceLocation Loc, JavaQualifiers modifiers, SmallVector<Decl *, 8>Args, StmtResult Body);
+
+  Decl *ActOnJavaAbstractMethod(SourceLocation Loc, JavaQualifiers modifiers, ParsedType ReturnTy, IdentifierInfo *II, SmallVector<Decl *, 8>Args);
+  Decl *ActOnJavaMethod(SourceLocation Loc, JavaQualifiers modifiers, ParsedType ReturnTy, IdentifierInfo *II, SmallVector<Decl *, 8>Args, StmtResult Body);
+  Decl *ActOnJavaVariable(SourceLocation Loc, JavaQualifiers modifiers, ParsedType Ty, IdentifierInfo *II, SourceLocation InitializerLoc, Expr *Initializer);
 };
 }
 
