@@ -29,6 +29,17 @@ public:
   Sema* createSema(Preprocessor &pp, ASTConsumer &consumer,
        TranslationUnitKind TUKind = TU_Complete,
        CodeCompleteConsumer *CompletionConsumer = nullptr);
+
+  IdentifierInfo &FullyQualifiedIdentifier(ArrayRef<IdentifierInfo *> Path) {
+    std::string Name = "";
+    for (ArrayRef<IdentifierInfo *>::iterator it = Path.begin(); it != Path.end(); ++it) {
+      Name += (*it)->getName();
+      if (it + 1 != Path.end()) {
+        Name += ".";
+      }
+    }
+    return Idents.get(Name);
+  }
 };
 }
 

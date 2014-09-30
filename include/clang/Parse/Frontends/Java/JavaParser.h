@@ -60,9 +60,12 @@ private:
     }
   }
 
-  bool ParseJavaIdentifier(JavaSema::JavaClassPath &Ident,
+  const IdentifierInfo *ParseJavaIdentifierType(ArrayRef<IdentifierInfo *> Path);
+  const IdentifierInfo *ParseJavaIdentifierType();
+
+  bool ParseJavaIdentifier(JavaClassPath &Ident,
                            bool AcceptsWildcard, SourceLocation Loc,
-                           void (*CodeCompletion)(JavaParser *Parser, SourceLocation Loc, JavaSema::JavaClassPath Path));
+                           void (*CodeCompletion)(JavaParser *Parser, SourceLocation Loc, JavaClassPath Path));
 public:
   JavaParser(Preprocessor &PP, Sema &Actions, bool SkipFunctionBodies) :
     Parser(PP, Actions, SkipFunctionBodies) {  	

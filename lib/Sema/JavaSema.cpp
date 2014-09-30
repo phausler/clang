@@ -40,16 +40,23 @@ DeclResult JavaSema::ActOnJavaImport(SourceLocation PacakgeLoc, JavaClassPath Pa
 }
 
 Decl *JavaSema::ActOnJavaClass(SourceLocation Loc, JavaQualifiers modifiers, 
-                               JavaClassPath ClassPath, 
-                               SourceLocation ExtendsLoc, JavaClassPath Extends, 
-                               SourceLocation ImplementsLoc, JavaClassPathList ImplementsList) {
-  return nullptr;
+                               const IdentifierInfo *ClassPath, 
+                               SourceLocation ExtendsLoc, const IdentifierInfo *Extends, 
+                               SourceLocation ImplementsLoc, ArrayRef<const IdentifierInfo *> ImplementsList) {
+  JavaClassDecl *Cls = JavaClassDecl::Create(Context, Context.getTranslationUnitDecl(),
+                                             Loc, modifiers, ClassPath, ExtendsLoc, Extends,
+                                             ImplementsLoc, ImplementsList);
+  Context.getTranslationUnitDecl()->addDecl(Cls);
+  return Cls;
 }
 
 Decl *JavaSema::ActOnJavaInterface(SourceLocation Loc, JavaQualifiers modifiers, 
-                                   JavaClassPath ClassPath, 
-                                   SourceLocation ExtendsLoc, JavaClassPathList ExtendsList) {
-  return nullptr;
+                                   const IdentifierInfo *ClassPath, 
+                                   SourceLocation ExtendsLoc, ArrayRef<const IdentifierInfo *> ExtendsList) {
+  JavaInterfaceDecl *Iface = JavaInterfaceDecl::Create(Context, Context.getTranslationUnitDecl(),
+                                                       Loc, modifiers, ClassPath, ExtendsLoc, ExtendsList);
+  Context.getTranslationUnitDecl()->addDecl(Iface);
+  return Iface;
 }
 
 Decl *JavaSema::ActOnJavaStaticInitializer(SourceLocation Loc, StmtResult Body) {

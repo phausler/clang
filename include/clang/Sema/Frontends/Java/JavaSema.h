@@ -19,16 +19,24 @@
 #include "clang/AST/Frontends/Java/JavaType.h"
 
 namespace clang {
+
+class JavaASTContext;
+
+// Do these belong here? if not where should they go?
+typedef SmallVector<std::pair<IdentifierInfo *, SourceLocation>, 2> JavaClassPath;
+typedef SmallVector<JavaClassPath, 2> JavaClassPathList;
+
 class JavaSema : public Sema {
 public:
-  typedef SmallVector<std::pair<IdentifierInfo *, SourceLocation>, 2> JavaClassPath;
-  typedef SmallVector<JavaClassPath, 2> JavaClassPathList;
-
   JavaSema(Preprocessor &pp, ASTContext &ctxt, ASTConsumer &consumer,
            TranslationUnitKind TUKind = TU_Complete,
            CodeCompleteConsumer *CompletionConsumer = nullptr) :
     Sema(pp, ctxt, consumer, TUKind, CompletionConsumer) {
 
+  }
+
+  JavaASTContext *JavaContext() const {
+    return (JavaASTContext *)&Context;
   }
 
   virtual Parser* createParser(bool SkipFunctionBodies);
@@ -41,12 +49,12 @@ public:
   DeclResult ActOnJavaPackage(SourceLocation PacakgeLoc, JavaClassPath Path);
   DeclResult ActOnJavaImport(SourceLocation PacakgeLoc, JavaClassPath Path);
   Decl *ActOnJavaClass(SourceLocation Loc, JavaQualifiers modifiers, 
-                       JavaClassPath ClassPath, 
-                       SourceLocation ExtendsLoc, JavaClassPath Extends, 
-                       SourceLocation ImplementsLoc, JavaClassPathList ImplementsList);
+                       const IdentifierInfo *ClassPath, 
+                       SourceLocation ExtendsLoc, const IdentifierInfo *Extends, 
+                       SourceLocation ImplementsLoc, ArrayRef<const IdentifierInfo *> ImplementsList);
   Decl *ActOnJavaInterface(SourceLocation Loc, JavaQualifiers modifiers, 
-                           JavaClassPath ClassPath, 
-                           SourceLocation ExtendsLoc, JavaClassPathList ExtendsList);
+                           const IdentifierInfo *ClassPath, 
+                           SourceLocation ExtendsLoc, ArrayRef<const IdentifierInfo *> ExtendsList);
 
   Decl *ActOnJavaStaticInitializer(SourceLocation Loc, StmtResult Body);
   Decl *ActOnJavaParameter(SourceLocation Loc, ParsedType Ty, IdentifierInfo *II);

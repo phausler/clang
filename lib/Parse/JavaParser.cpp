@@ -1,6 +1,7 @@
 #include "clang/Parse/Frontends/Java/JavaParser.h"
 #include "RAIIObjectsForParser.h"
 #include "clang/Parse/ParseDiagnostic.h"
+#include "clang/AST/Frontends/Java/JavaASTContext.h"
 
 // http://cui.unige.ch/isi/bnf/JAVA/BNFindex.html
 
@@ -45,9 +46,9 @@ JavaParser::DeclGroupPtrTy JavaParser::ParseExternalDeclaration(ParsedAttributes
   return Actions.ConvertDeclToDeclGroup(SingleDecl);
 }
 
-bool JavaParser::ParseJavaIdentifier(JavaSema::JavaClassPath &Ident,
+bool JavaParser::ParseJavaIdentifier(JavaClassPath &Ident,
                                      bool AcceptsWildcard, SourceLocation Loc,
-                                     void (*CodeCompletion)(JavaParser *Parser, SourceLocation Loc, JavaSema::JavaClassPath Path)) {
+                                     void (*CodeCompletion)(JavaParser *Parser, SourceLocation Loc, JavaClassPath Path)) {
   do {
     if (!Tok.is(tok::identifier) && 
         ((AcceptsWildcard && !Tok.is(tok::star)) || !AcceptsWildcard)) {
@@ -70,7 +71,7 @@ bool JavaParser::ParseJavaIdentifier(JavaSema::JavaClassPath &Ident,
     }
     
     break;
-  } while (true);
+  } while (Tok.isNot(tok::eof));
 
   return true;
 }
@@ -79,8 +80,8 @@ JavaParser::DeclGroupPtrTy JavaParser::ParseJavaPackageDefinition() {
   assert(Tok.is(tok::java_package) && "expected package");
 
   SourceLocation PackageLoc = ConsumeToken();
-  JavaSema::JavaClassPath ClassPath;
-  if (!ParseJavaIdentifier(ClassPath, false, PackageLoc, [] (JavaParser *Parser, SourceLocation Loc, JavaSema::JavaClassPath Path) {
+  JavaClassPath ClassPath;
+  if (!ParseJavaIdentifier(ClassPath, false, PackageLoc, [] (JavaParser *Parser, SourceLocation Loc, JavaClassPath Path) {
     Parser->JavaActions()->CodeCompletePacakge(Loc, Path);
   })) {
     return DeclGroupPtrTy();
@@ -98,8 +99,8 @@ JavaParser::DeclGroupPtrTy JavaParser::ParseJavaImport() {
 
   SourceLocation ImportLoc = ConsumeToken();
 
-  JavaSema::JavaClassPath ClassPath;
-  if (!ParseJavaIdentifier(ClassPath, true, ImportLoc, [] (JavaParser *Parser, SourceLocation Loc, JavaSema::JavaClassPath Path) {
+  JavaClassPath ClassPath;
+  if (!ParseJavaIdentifier(ClassPath, true, ImportLoc, [] (JavaParser *Parser, SourceLocation Loc, JavaClassPath Path) {
     Parser->JavaActions()->CodeCompleteImport(Loc, Path);
   })) {
     return DeclGroupPtrTy();
@@ -145,6 +146,9 @@ JavaQualifiers JavaParser::ParseModifiers() {
       case tok::java_transient:
         Quals.addTransient();
         break;
+      default:
+        // TODO: Emit diag or assert?
+        break;
     }
     ConsumeToken();
   }
@@ -174,28 +178,19 @@ Decl *JavaParser::ParseJavaClass(SourceLocation Loc ,JavaQualifiers modifiers) {
     return nullptr;
   }
   
-  JavaSema::JavaClassPath ClassPath;
-  if (!ParseJavaIdentifier(ClassPath, false, Loc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaSema::JavaClassPath Path) {
-    Parser->JavaActions()->CodeCompleteClass(StartLoc, Path);
-  })) {
-    return nullptr;
-  }
+  const IdentifierInfo *ClassPath = ParseJavaIdentifierType();
   
-  JavaSema::JavaClassPath Extends;
+  const IdentifierInfo *Extends;
   SourceLocation ExtendsLoc;
 
   if (Tok.is(tok::java_extends)) {
     ExtendsLoc = Tok.getLocation();
     ConsumeToken();
     
-    if (!ParseJavaIdentifier(Extends, false, ExtendsLoc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaSema::JavaClassPath Path) {
-      Parser->JavaActions()->CodeCompleteClass(StartLoc, Path);
-    })) {
-      return nullptr;
-    }
+    Extends = ParseJavaIdentifierType();
   }
 
-  JavaSema::JavaClassPathList ImplementsList;
+  SmallVector<const IdentifierInfo*, 2> ImplementsList;
   SourceLocation ImplementsLoc;
 
   if (Tok.is(tok::java_implements)) {
@@ -203,23 +198,15 @@ Decl *JavaParser::ParseJavaClass(SourceLocation Loc ,JavaQualifiers modifiers) {
     ConsumeToken();
 
     do {
-      JavaSema::JavaClassPath Implements;
+      const IdentifierInfo *II = ParseJavaIdentifierType();
       
-      if (!ParseJavaIdentifier(Implements, false, ImplementsLoc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaSema::JavaClassPath Path) {
-        Parser->JavaActions()->CodeCompleteInterface(StartLoc, Path);
-      })) {
-        return nullptr;
+      ImplementsList.push_back(II);
+
+      if (Tok.is(tok::comma)) {
+        ConsumeToken();
+        continue;
       }
-      
-      ImplementsList.push_back(Implements);
-
-      if (!Tok.is(tok::comma)) {
-        break;
-      }
-
-      ConsumeToken();
-
-    } while (true);
+    } while (Tok.isNot(tok::eof));
   }
 
   Decl *ClsType = JavaActions()->ActOnJavaClass(Loc, modifiers, ClassPath, ExtendsLoc, Extends, ImplementsLoc, ImplementsList);
@@ -238,14 +225,9 @@ Decl *JavaParser::ParseJavaInterface(SourceLocation Loc, JavaQualifiers modifier
     return nullptr;
   }
   
-  JavaSema::JavaClassPath ClassPath;
-  if (!ParseJavaIdentifier(ClassPath, false, Loc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaSema::JavaClassPath Path) {
-    Parser->JavaActions()->CodeCompleteClass(StartLoc, Path);
-  })) {
-    return nullptr;
-  }
+  const IdentifierInfo *ClassPath = ParseJavaIdentifierType();
   
-  JavaSema::JavaClassPathList ExtendsList;
+  SmallVector<const IdentifierInfo*, 2> ExtendsList;
   SourceLocation ExtendsLoc;
 
   if (Tok.is(tok::java_extends)) {
@@ -253,15 +235,9 @@ Decl *JavaParser::ParseJavaInterface(SourceLocation Loc, JavaQualifiers modifier
     ConsumeToken();
     
     do {
-      JavaSema::JavaClassPath Extends;
+      const IdentifierInfo *II = ParseJavaIdentifierType();
       
-      if (!ParseJavaIdentifier(Extends, false, ExtendsLoc, [] (JavaParser *Parser, SourceLocation StartLoc, JavaSema::JavaClassPath Path) {
-        Parser->JavaActions()->CodeCompleteClass(StartLoc, Path);
-      })) {
-        return nullptr;
-      }
-      
-      ExtendsList.push_back(Extends);
+      ExtendsList.push_back(II);
 
       if (!Tok.is(tok::comma)) {
         break;
@@ -269,7 +245,7 @@ Decl *JavaParser::ParseJavaInterface(SourceLocation Loc, JavaQualifiers modifier
 
       ConsumeToken();
 
-    } while (true);
+    } while (Tok.isNot(tok::eof));
   }
 
   Decl *InterfaceType = JavaActions()->ActOnJavaInterface(Loc, modifiers, ClassPath, ExtendsLoc, ExtendsList);
@@ -280,7 +256,15 @@ Decl *JavaParser::ParseJavaInterface(SourceLocation Loc, JavaQualifiers modifier
 }
 
 void JavaParser::ParseJavaContainer(SourceLocation Loc, JavaQualifiers modifiers, Decl *ContainerType, bool CanContainImplementations) {
+  ExpectAndConsume(tok::l_brace);
   do {
+    if (Tok.is(tok::at)) {
+      ConsumeToken();
+      IdentifierInfo *AnnotationII = Tok.getIdentifierInfo();
+      // TODO: pass AnnotationII across to methods etc
+      ConsumeToken();
+    }
+
     if (Tok.is(tok::java_static) && NextToken().is(tok::l_brace)) {
       if (CanContainImplementations) {
         Decl *SI = ParseJavaStaticInitializer(ContainerType);
@@ -314,10 +298,11 @@ void JavaParser::ParseJavaContainer(SourceLocation Loc, JavaQualifiers modifiers
       }
     }
 
-    if (Tok.is(tok::r_brace)) {
+    if (!Tok.is(tok::r_brace)) {
       break;
     }
-  } while (true);
+  } while (Tok.isNot(tok::eof));
+  ExpectAndConsume(tok::r_brace);
 }
 
 Decl *JavaParser::ParseJavaStaticInitializer(Decl *ContainerType) {
@@ -470,6 +455,29 @@ StmtResult JavaParser::ParseJavaReturnStatement() {
   return StmtError();
 }
 
+const IdentifierInfo *JavaParser::ParseJavaIdentifierType(ArrayRef<IdentifierInfo *> Path) {
+  return &(JavaActions()->JavaContext()->FullyQualifiedIdentifier(Path));
+}
+
+const IdentifierInfo *JavaParser::ParseJavaIdentifierType() {
+  SmallVector<IdentifierInfo *, 2> Path;
+
+  while (Tok.is(tok::identifier)) {
+    IdentifierInfo *II = Tok.getIdentifierInfo();
+    ConsumeToken();
+    Path.push_back(II);  
+    
+    if (Tok.is(tok::period)) {
+      ConsumeToken();
+      continue;
+    }
+
+    break;
+  }
+
+  return ParseJavaIdentifierType(Path);
+}
+
 ParsedType JavaParser::ParseJavaType(bool isReturnType) {
   ParsedType Ty;
   
@@ -487,16 +495,18 @@ ParsedType JavaParser::ParseJavaType(bool isReturnType) {
         if (isReturnType) {
 
         } else {
-          // TODO: Emit diag?
+          // TODO: Emit diag or assert?
         }
 
         break;
       default:
+        // TODO: Emit diag
         break;
     }
     ConsumeToken();
   } else {
-
+    
+    
   }
 
   return Ty;
@@ -624,7 +634,7 @@ SmallVector<Decl *, 2> JavaParser::ParseJavaVariable(SourceLocation Loc, JavaQua
     }
 
     break;
-  } while (true);
+  } while (Tok.isNot(tok::semi));
   ExpectAndConsume(tok::semi);
   return Variables;
 }
