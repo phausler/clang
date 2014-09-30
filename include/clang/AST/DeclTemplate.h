@@ -881,6 +881,8 @@ public:
   /// \brief Create an empty function template node.
   static FunctionTemplateDecl *CreateDeserialized(ASTContext &C, unsigned ID);
 
+  virtual bool isTopLevel() { return getKind() == FunctionTemplate; }
+
   // Implement isa/cast/dyncast support
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == FunctionTemplate; }
@@ -1637,6 +1639,8 @@ public:
       TemplateArgs[Arg].Profile(ID, Context);
   }
 
+  virtual bool isTopLevel() { return getKind() == ClassTemplateSpecialization; }
+
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) {
     return K >= firstClassTemplateSpecialization &&
@@ -1986,6 +1990,8 @@ public:
     return makeSpecIterator(getSpecializations(), true);
   }
 
+  virtual bool isTopLevel() { return getKind() == ClassTemplate; }
+
   // Implement isa/cast/dyncast support
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == ClassTemplate; }
@@ -2159,6 +2165,8 @@ public:
 
   /// \brief Create an empty alias template node.
   static TypeAliasTemplateDecl *CreateDeserialized(ASTContext &C, unsigned ID);
+
+  virtual bool isTopLevel() { return getKind() == TypeAliasTemplate; }
 
   // Implement isa/cast/dyncast support
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
@@ -2626,6 +2634,8 @@ public:
     return First->InstantiatedFromMember.setInt(true);
   }
 
+  virtual bool isTopLevel() { return getKind() == VarTemplatePartialSpecialization; }
+
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) {
     return K == VarTemplatePartialSpecialization;
@@ -2785,6 +2795,8 @@ public:
   spec_iterator spec_end() const {
     return makeSpecIterator(getSpecializations(), true);
   }
+
+  virtual bool isTopLevel() { return getKind() == VarTemplate; }
 
   // Implement isa/cast/dyncast support
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }

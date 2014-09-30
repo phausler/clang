@@ -1854,6 +1854,8 @@ public:
               ->getCorrespondingMethodInClass(RD, MayBeBase);
   }
 
+  virtual bool isTopLevel() { return getKind() == CXXMethod; }
+
   // Implement isa/cast/dyncast/etc.
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) {
@@ -2312,6 +2314,8 @@ public:
     return cast<CXXConstructorDecl>(FunctionDecl::getCanonicalDecl());
   }
 
+  virtual bool isTopLevel() { return getKind() == CXXConstructor; }
+
   // Implement isa/cast/dyncast/etc.
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == CXXConstructor; }
@@ -2360,6 +2364,8 @@ public:
   const FunctionDecl *getOperatorDelete() const {
     return cast<CXXDestructorDecl>(getFirstDecl())->OperatorDelete;
   }
+
+  virtual bool isTopLevel() { return getKind() == CXXDestructor; }
 
   // Implement isa/cast/dyncast/etc.
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
@@ -2427,6 +2433,8 @@ public:
   /// a lambda closure type to a block pointer.
   bool isLambdaToBlockPointerConversion() const;
   
+  virtual bool isTopLevel() { return getKind() == CXXConversion; }
+
   // Implement isa/cast/dyncast/etc.
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == CXXConversion; }
@@ -2512,6 +2520,8 @@ public:
   SourceRange getSourceRange() const override LLVM_READONLY {
     return SourceRange(ExternLoc, getLocEnd());
   }
+
+  virtual bool isTopLevel() { return getKind() == LinkageSpec; }
 
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == LinkageSpec; }
@@ -2620,6 +2630,8 @@ public:
     return SourceRange(UsingLoc, getLocation());
   }
 
+  virtual bool isTopLevel() { return getKind() == UsingDirective; }
+
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == UsingDirective; }
 
@@ -2714,6 +2726,8 @@ public:
   SourceRange getSourceRange() const override LLVM_READONLY {
     return SourceRange(NamespaceLoc, IdentLoc);
   }
+
+  virtual bool isTopLevel() { return getKind() == NamespaceAlias; }
 
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == NamespaceAlias; }
@@ -2810,6 +2824,8 @@ public:
   UsingShadowDecl *getNextUsingShadowDecl() const {
     return dyn_cast_or_null<UsingShadowDecl>(UsingOrNextShadow);
   }
+
+  virtual bool isTopLevel() { return getKind() == UsingShadow; }
 
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == Decl::UsingShadow; }
@@ -2947,6 +2963,8 @@ public:
   static UsingDecl *CreateDeserialized(ASTContext &C, unsigned ID);
 
   SourceRange getSourceRange() const override LLVM_READONLY;
+
+  virtual bool isTopLevel() { return getKind() == Using; }
 
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == Using; }
@@ -3122,6 +3140,8 @@ public:
   SourceRange getSourceRange() const override LLVM_READONLY {
     return SourceRange(getLocation(), getRParenLoc());
   }
+
+  virtual bool isTopLevel() { return getKind() == StaticAssert; }
 
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == StaticAssert; }

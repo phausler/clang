@@ -81,6 +81,8 @@ public:
 #include "clang/AST/DeclNodes.inc"
   };
 
+  virtual bool isTopLevel() { return false; }
+
   /// \brief A placeholder type used to construct an empty shell of a
   /// decl-derived type that will be filled in later (e.g., by some
   /// deserialization method).

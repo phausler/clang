@@ -450,6 +450,8 @@ public:
   void setLocStart(SourceLocation L) { LocStart = L; }
   void setRBraceLoc(SourceLocation L) { RBraceLoc = L; }
 
+  virtual bool isTopLevel() { return getKind() == Namespace; }
+
   // Implement isa/cast/dyncast/etc.
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == Namespace; }
@@ -1202,6 +1204,8 @@ public:
   VarTemplateDecl *getDescribedVarTemplate() const;
 
   void setDescribedVarTemplate(VarTemplateDecl *Template);
+
+  virtual bool isTopLevel() { return getKind() == Var; }
 
   // Implement isa/cast/dyncast/etc.
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
@@ -2130,6 +2134,8 @@ public:
   /// returns 0.
   unsigned getMemoryFunctionKind() const;
 
+  virtual bool isTopLevel() { return getKind() == Function; }
+
   // Implement isa/cast/dyncast/etc.
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) {
@@ -2357,6 +2363,8 @@ public:
     assert(ChainingSize >= 2);
     return dyn_cast<VarDecl>(*chain_begin());
   }
+
+  virtual bool isTopLevel() { return getKind() == IndirectField; }
 
   // Implement isa/cast/dyncast/etc.
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
@@ -3211,6 +3219,8 @@ public:
   StringLiteral *getAsmString() { return AsmString; }
   void setAsmString(StringLiteral *Asm) { AsmString = Asm; }
 
+  virtual bool isTopLevel() { return getKind() == FileScopeAsm; }
+
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == FileScopeAsm; }
 };
@@ -3399,6 +3409,8 @@ public:
 
   SourceRange getSourceRange() const override LLVM_READONLY;
 
+  virtual bool isTopLevel() { return getKind() == Block; }
+
   // Implement isa/cast/dyncast/etc.
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == Block; }
@@ -3553,6 +3565,8 @@ public:
 
   SourceRange getSourceRange() const override LLVM_READONLY;
 
+  virtual bool isTopLevel() { return getKind() == Import; }
+
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == Import; }
 };
@@ -3567,6 +3581,8 @@ public:
   static EmptyDecl *Create(ASTContext &C, DeclContext *DC,
                            SourceLocation L);
   static EmptyDecl *CreateDeserialized(ASTContext &C, unsigned ID);
+
+  virtual bool isTopLevel() { return getKind() == Empty; }
 
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == Empty; }

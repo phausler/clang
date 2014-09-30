@@ -487,6 +487,8 @@ public:
   /// \brief Returns whether this specific method is a definition.
   bool isThisDeclarationADefinition() const { return hasBody(); }
 
+  virtual bool isTopLevel() { return getKind() == ObjCMethod; }
+
   // Implement isa/cast/dyncast/etc.
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == ObjCMethod; }
@@ -1362,6 +1364,8 @@ public:
   const Type *getTypeForDecl() const { return TypeForDecl; }
   void setTypeForDecl(const Type *TD) const { TypeForDecl = TD; }
 
+  virtual bool isTopLevel() { return getKind() == ObjCInterface; }
+
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == ObjCInterface; }
 
@@ -1687,6 +1691,8 @@ public:
   void collectInheritedProtocolProperties(const ObjCPropertyDecl *Property,
                                           ProtocolPropertyMap &PM) const;
 
+  virtual bool isTopLevel() { return getKind() == ObjCProtocol; }
+
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == ObjCProtocol; }
 
@@ -1831,6 +1837,8 @@ public:
   void setIvarRBraceLoc(SourceLocation Loc) { IvarRBraceLoc = Loc; }
   SourceLocation getIvarRBraceLoc() const { return IvarRBraceLoc; }
 
+  virtual bool isTopLevel() { return getKind() == ObjCCategory; }
+
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == ObjCCategory; }
 
@@ -1963,6 +1971,8 @@ public:
   std::string getNameAsString() const {
     return getName();
   }
+
+  virtual bool isTopLevel() { return getKind() == ObjCCategoryImpl; }
 
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == ObjCCategoryImpl;}
@@ -2141,6 +2151,8 @@ public:
     return ivar_begin() == ivar_end();
   }
 
+  virtual bool isTopLevel() { return getKind() == ObjCImplementation; }
+
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == ObjCImplementation; }
 
@@ -2171,6 +2183,8 @@ public:
   const ObjCInterfaceDecl *getClassInterface() const { return AliasedClass; }
   ObjCInterfaceDecl *getClassInterface() { return AliasedClass; }
   void setClassInterface(ObjCInterfaceDecl *D) { AliasedClass = D; }
+
+  virtual bool isTopLevel() { return getKind() == ObjCCompatibleAlias; }
 
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == ObjCCompatibleAlias; }
