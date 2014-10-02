@@ -39,18 +39,24 @@ DeclResult JavaSema::ActOnJavaImport(SourceLocation ImportLoc, JavaClassPath Pat
   Context.getTranslationUnitDecl()->addDecl(Import);
   return Import;
 }
+
+Decl *JavaSema::ActOnBeginJavaClass(SourceLocation Loc, JavaQualifiers modifiers, 
+                                    const IdentifierInfo *ClassPath, 
+                                    SourceLocation ExtendsLoc, const IdentifierInfo *Extends, 
+                                    SourceLocation ImplementsLoc, ArrayRef<const IdentifierInfo *> ImplementsList) {
+  JavaClassDecl *Cls = JavaClassDecl::Create(Context, CurContext,
                                              Loc, modifiers, ClassPath, ExtendsLoc, Extends,
                                              ImplementsLoc, ImplementsList);
-  Context.getTranslationUnitDecl()->addDecl(Cls);
+  PushDeclContext(getCurScope(), Cls);
   return Cls;
 }
 
-Decl *JavaSema::ActOnJavaInterface(SourceLocation Loc, JavaQualifiers modifiers, 
-                                   const IdentifierInfo *ClassPath, 
-                                   SourceLocation ExtendsLoc, ArrayRef<const IdentifierInfo *> ExtendsList) {
-  JavaInterfaceDecl *Iface = JavaInterfaceDecl::Create(Context, Context.getTranslationUnitDecl(),
+Decl *JavaSema::ActOnBeginJavaInterface(SourceLocation Loc, JavaQualifiers modifiers, 
+                                        const IdentifierInfo *ClassPath, 
+                                        SourceLocation ExtendsLoc, ArrayRef<const IdentifierInfo *> ExtendsList) {
+  JavaInterfaceDecl *Iface = JavaInterfaceDecl::Create(Context, CurContext,
                                                        Loc, modifiers, ClassPath, ExtendsLoc, ExtendsList);
-  Context.getTranslationUnitDecl()->addDecl(Iface);
+  PushDeclContext(getCurScope(), Iface);
   return Iface;
 }
 

@@ -209,7 +209,7 @@ Decl *JavaParser::ParseJavaClass(SourceLocation Loc ,JavaQualifiers modifiers) {
     } while (Tok.isNot(tok::eof));
   }
 
-  Decl *ClsType = JavaActions()->ActOnJavaClass(Loc, modifiers, ClassPath, ExtendsLoc, Extends, ImplementsLoc, ImplementsList);
+  Decl *ClsType = JavaActions()->ActOnBeginJavaClass(Loc, modifiers, ClassPath, ExtendsLoc, Extends, ImplementsLoc, ImplementsList);
 
   ParseJavaContainer(Loc, modifiers, ClsType, true);
 
@@ -248,7 +248,7 @@ Decl *JavaParser::ParseJavaInterface(SourceLocation Loc, JavaQualifiers modifier
     } while (Tok.isNot(tok::eof));
   }
 
-  Decl *InterfaceType = JavaActions()->ActOnJavaInterface(Loc, modifiers, ClassPath, ExtendsLoc, ExtendsList);
+  Decl *InterfaceType = JavaActions()->ActOnBeginJavaInterface(Loc, modifiers, ClassPath, ExtendsLoc, ExtendsList);
 
   ParseJavaContainer(Loc, modifiers, InterfaceType, false);
 
@@ -303,6 +303,7 @@ void JavaParser::ParseJavaContainer(SourceLocation Loc, JavaQualifiers modifiers
     }
   } while (Tok.isNot(tok::eof));
   ExpectAndConsume(tok::r_brace);
+  // Pop scope here
 }
 
 Decl *JavaParser::ParseJavaStaticInitializer(Decl *ContainerType) {

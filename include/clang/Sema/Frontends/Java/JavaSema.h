@@ -48,13 +48,13 @@ public:
 
   DeclResult ActOnJavaPackage(SourceLocation PacakgeLoc, JavaClassPath Path);
   DeclResult ActOnJavaImport(SourceLocation PacakgeLoc, JavaClassPath Path);
-  Decl *ActOnJavaClass(SourceLocation Loc, JavaQualifiers modifiers, 
-                       const IdentifierInfo *ClassPath, 
-                       SourceLocation ExtendsLoc, const IdentifierInfo *Extends, 
-                       SourceLocation ImplementsLoc, ArrayRef<const IdentifierInfo *> ImplementsList);
-  Decl *ActOnJavaInterface(SourceLocation Loc, JavaQualifiers modifiers, 
-                           const IdentifierInfo *ClassPath, 
-                           SourceLocation ExtendsLoc, ArrayRef<const IdentifierInfo *> ExtendsList);
+  Decl *ActOnBeginJavaClass(SourceLocation Loc, JavaQualifiers modifiers, 
+                            const IdentifierInfo *ClassPath, 
+                            SourceLocation ExtendsLoc, const IdentifierInfo *Extends, 
+                            SourceLocation ImplementsLoc, ArrayRef<const IdentifierInfo *> ImplementsList);
+  Decl *ActOnBeginJavaInterface(SourceLocation Loc, JavaQualifiers modifiers, 
+                                const IdentifierInfo *ClassPath, 
+                                SourceLocation ExtendsLoc, ArrayRef<const IdentifierInfo *> ExtendsList);
 
   Decl *ActOnJavaStaticInitializer(SourceLocation Loc, StmtResult Body);
   Decl *ActOnJavaParameter(SourceLocation Loc, ParsedType Ty, IdentifierInfo *II);
