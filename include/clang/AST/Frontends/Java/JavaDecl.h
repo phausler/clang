@@ -34,6 +34,8 @@ public:
                                  SourceLocation StartLoc,
                                  JavaClassPath ClassPath);
 
+  virtual bool isTopLevel() { return true; }
+
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
   static bool classofKind(Kind K) { return K == Import; }
 };

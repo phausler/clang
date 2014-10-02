@@ -29,6 +29,7 @@ DeclResult JavaSema::ActOnJavaPackage(SourceLocation PacakgeLoc, JavaClassPath P
   JavaPackageDecl *Package = JavaPackageDecl::Create(Context, Context.getTranslationUnitDecl(),
                                                      PacakgeLoc, Path);
   Context.getTranslationUnitDecl()->addDecl(Package);
+  PushDeclContext(getCurScope(), Package);
   return Package;
 }
 
