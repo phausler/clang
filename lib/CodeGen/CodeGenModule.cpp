@@ -3201,11 +3201,15 @@ void CodeGenModule::EmitTopLevelDecl(Decl *D) {
       DebugInfo->completeTemplateDefinition(*Spec);
   }
 
+#include "Frontends/CodeGenModuleEmitTopLevelDecl.inc"
+
   default:
     // Make sure we handled everything we should, every other kind is a
     // non-top-level decl.  FIXME: Would be nice to have an isTopLevelDeclKind
     // function. Need to recode Decl::Kind to do that easily.
-    assert(isa<TypeDecl>(D) && "Unsupported decl kind");
+    if (D->isTopLevel()) {
+      assert(isa<TypeDecl>(D) && "Unsupported decl kind");  
+    }
   }
 }
 
