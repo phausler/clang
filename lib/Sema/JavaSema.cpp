@@ -33,18 +33,12 @@ DeclResult JavaSema::ActOnJavaPackage(SourceLocation PacakgeLoc, JavaClassPath P
   return Package;
 }
 
-DeclResult JavaSema::ActOnJavaImport(SourceLocation PacakgeLoc, JavaClassPath Path) {
-  JavaImportDecl *Package = JavaImportDecl::Create(Context, Context.getTranslationUnitDecl(),
-                                                   PacakgeLoc, Path);
-  Context.getTranslationUnitDecl()->addDecl(Package);
-  return Package;
+DeclResult JavaSema::ActOnJavaImport(SourceLocation ImportLoc, JavaClassPath Path) {
+  JavaImportDecl *Import = JavaImportDecl::Create(Context, Context.getTranslationUnitDecl(),
+                                                   ImportLoc, Path);
+  Context.getTranslationUnitDecl()->addDecl(Import);
+  return Import;
 }
-
-Decl *JavaSema::ActOnJavaClass(SourceLocation Loc, JavaQualifiers modifiers, 
-                               const IdentifierInfo *ClassPath, 
-                               SourceLocation ExtendsLoc, const IdentifierInfo *Extends, 
-                               SourceLocation ImplementsLoc, ArrayRef<const IdentifierInfo *> ImplementsList) {
-  JavaClassDecl *Cls = JavaClassDecl::Create(Context, Context.getTranslationUnitDecl(),
                                              Loc, modifiers, ClassPath, ExtendsLoc, Extends,
                                              ImplementsLoc, ImplementsList);
   Context.getTranslationUnitDecl()->addDecl(Cls);
