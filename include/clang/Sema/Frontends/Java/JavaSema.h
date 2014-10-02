@@ -57,7 +57,7 @@ public:
                                 SourceLocation ExtendsLoc, ArrayRef<const IdentifierInfo *> ExtendsList);
 
   Decl *ActOnJavaStaticInitializer(SourceLocation Loc, StmtResult Body);
-  Decl *ActOnJavaParameter(SourceLocation Loc, ParsedType Ty, IdentifierInfo *II);
+  Decl *ActOnJavaParameter(SourceLocation Loc, QualType QTy, TypeSourceInfo *TInfo, IdentifierInfo *II, SourceLocation IDLoc);
   Decl *ActOnJavaConstructor(SourceLocation Loc, JavaQualifiers modifiers, SmallVector<Decl *, 8>Args, StmtResult Body);
 
   Decl *ActOnJavaAbstractMethod(SourceLocation Loc, JavaQualifiers modifiers, ParsedType ReturnTy, IdentifierInfo *II, SmallVector<Decl *, 8>Args);

@@ -480,51 +480,28 @@ const IdentifierInfo *JavaParser::ParseJavaIdentifierType() {
 }
 
 ParsedType JavaParser::ParseJavaType(bool isReturnType) {
-  ParsedType Ty;
-  
-  if (isTokenIntrinsicTypeSpecifier()) {
-    switch (Tok.getKind()) {
-      case tok::java_boolean:
-      case tok::java_byte:
-      case tok::java_char:
-      case tok::java_short:
-      case tok::java_int:
-      case tok::java_float:
-      case tok::java_long:
-      case tok::java_double:
-      case tok::java_void:
-        if (isReturnType) {
-
-        } else {
-          // TODO: Emit diag or assert?
-        }
-
-        break;
-      default:
-        // TODO: Emit diag
-        break;
-    }
-    ConsumeToken();
-  } else {
-    
-    
+  if (!isReturnType && Tok.is(tok::java_void)) {
+    // TODO: emit diag
   }
-
+  ParsedType Ty = Actions.getTypeName(*Tok.getIdentifierInfo(), Tok.getLocation(), getCurScope());
+  ConsumeToken();
   return Ty;
 }
 
 Decl *JavaParser::ParseJavaParameter() {
   SourceLocation Loc = Tok.getLocation();
   ParsedType Ty = ParseJavaType(false);
-  
+  TypeSourceInfo *TInfo;
+  QualType QTy = JavaActions()->GetTypeFromParser(Ty, &TInfo);
+
   if (!Tok.is(tok::identifier)) {
     // TODO: emit diag
     return nullptr;
   }
-
+  SourceLocation IDLoc = Tok.getLocation();
   IdentifierInfo *II = Tok.getIdentifierInfo();
   ConsumeToken();
-  return JavaActions()->ActOnJavaParameter(Loc, Ty, II);
+  return JavaActions()->ActOnJavaParameter(Loc, QTy, TInfo, II, IDLoc);
 }
 
 void JavaParser::ParseJavaParameterList(SmallVector<Decl *, 8> Params) {

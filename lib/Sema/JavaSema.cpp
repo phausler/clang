@@ -64,8 +64,14 @@ Decl *JavaSema::ActOnJavaStaticInitializer(SourceLocation Loc, StmtResult Body) 
   return nullptr;
 }
 
-Decl *JavaSema::ActOnJavaParameter(SourceLocation Loc, ParsedType Ty, IdentifierInfo *II) {
-  return nullptr;
+Decl *JavaSema::ActOnJavaParameter(SourceLocation Loc, QualType QTy, TypeSourceInfo *TInfo, IdentifierInfo *II, SourceLocation IDLoc) {
+  ParmVarDecl *Param = ParmVarDecl::Create(Context, CurContext,
+                                           Loc, 
+                                           IDLoc, II, 
+                                           QTy, TInfo, 
+                                           SC_Register, nullptr);
+
+  return Param;
 }
 
 Decl *JavaSema::ActOnJavaConstructor(SourceLocation Loc, JavaQualifiers modifiers, SmallVector<Decl *, 8>Args, StmtResult Body) {
